@@ -1,4 +1,4 @@
-import { payments } from "@/app/lib/placeholder-data";
+/*import { payments } from "@/app/lib/placeholder-data";
 import { redirect } from "next/navigation";
 import { createCheckout } from "./lib/payments";
 
@@ -48,4 +48,10 @@ export default function Home() {
       </div>
     </div>
   );
+}
+*/
+import { redirect } from "next/navigation";
+
+export default function Home() {
+  redirect("/dashboard");
 }

@@ -26,3 +26,8 @@ export type Payment_Admin = {
   name: string;
   created_at: Date; //es util para poder responder¿Quién agregó este admin?¿Cuándo obtuvo permisos?¿Desde cuándo tiene acceso?
 };
+export type LatestPayment = {
+  id: string;
+  name: string;
+  amount: string;
+};
