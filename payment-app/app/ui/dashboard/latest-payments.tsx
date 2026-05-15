@@ -28,19 +28,17 @@ export default async function LatestPayments({
                 >
                   <div className="flex items-center">
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold md:text-base">
+                      <p className="hidden text-sm text-gray-500 sm:block">
                         {payment.id}
                       </p>
+                      <p className="truncate text-sm font-semibold md:text-base">
+                        {payment.buyerId}
+                      </p>
                       <p className="hidden text-sm text-gray-500 sm:block">
-                        {payment.name}
+                        {payment.amount}
                       </p>
                     </div>
                   </div>
-                  <p
-                    className={`${lusitana.className} truncate text-sm font-medium md:text-base`}
-                  >
-                    {payment.amount}
-                  </p>
                 </div>
               );
             })}
