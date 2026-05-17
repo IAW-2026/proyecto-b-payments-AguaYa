@@ -10,13 +10,12 @@
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
-    "@prisma/adapter-pg": "^7.8.0",
-    "@prisma/client": "^7.8.0",
+    "@prisma/client": "^6.19.3",
     "clsx": "^2.1.1",
     "mercadopago": "^2.12.0",
     "next": "16.2.5",
     "pg": "^8.20.0",
-    "prisma": "^7.8.0",
+    "prisma": "^6.19.3",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },
@@ -29,5 +28,8 @@
     "eslint-config-next": "16.2.5",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "prisma": {
+    "seed": "node --experimental-strip-types prisma/seed.ts"
   }
 }

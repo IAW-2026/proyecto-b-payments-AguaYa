@@ -1,42 +1,50 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
-  provider = "prisma-client"
-  output = "../app/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
-model Payment {
-  id  String @id @default(cuid()) 
-  orderId String
-  buyerId String
-  sellerId String
-  amount Int
-  status PaymentStatus
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  mpPaymentId String?
-  mpStatus String?
-  mpPaymentMethod String?
-  mpPaymentDate DateTime?
 
+model Payment {
+  id              String        @id @default(cuid())
+  orderId         String
+  buyerId         String
+  sellerId        String
+  amount          Int
+  status          PaymentStatus
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  mpPreferenceId String?
+  mpPaymentId     String?
+  mpStatus        String?
+  mpPaymentMethod String?
+  mpPaymentDate   DateTime?
+  invoice         Invoice?
 }
+
+model PaymentAdmin {
+  userId         String
+  paymentAdminId String   @id @default(cuid())
+  name           String
+  createdAt      DateTime @default(now())
+}
+
+model Invoice {
+  id        String   @id @default(cuid())
+  paymentId String   @unique
+  subtotal  Int
+  tax       Int
+  total     Int
+  issuedAt  DateTime @default(now())
+  payment   Payment  @relation(fields: [paymentId], references: [id])
+}
+
 enum PaymentStatus {
   pending
   cancelled
   approved
   rejected
   expired
-}
-
-model PaymentAdmin {
-  userId String
-  paymentAdminId  String @id @default(cuid())
-  name String
-  createdAt DateTime @default(now())
 }

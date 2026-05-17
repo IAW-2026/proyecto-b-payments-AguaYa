@@ -1,5 +1,6 @@
-import "dotenv/config";
-import { prisma } from "../app/lib/prisma";
+//  AGREGA ESTO (Instancia directa de Prisma para el script):
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
 async function main() {
   // Limpiar tablas
   await prisma.payment.deleteMany();
