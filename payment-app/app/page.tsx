@@ -50,8 +50,13 @@ export default function Home() {
   );
 }
 */
+import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 
-export default function Home() {
-  return redirect("/dashboard");
+export default async function Home() {
+  const { userId } = await auth();
+
+  if (!userId) redirect("/sign-in");
+
+  redirect("/select-role");
 }
