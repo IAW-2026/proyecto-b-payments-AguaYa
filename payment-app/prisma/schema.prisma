@@ -6,17 +6,7 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-model User {
-  id        String   @id
-  name      String?
-  email     String?  @unique
-  role      UserRole
 
-  buyerPayments  Payment[] @relation("BuyerPayments")
-  sellerPayments Payment[] @relation("SellerPayments")
-
-  createdAt DateTime @default(now())
-}
 model Payment {
   id              String        @id @default(cuid())
   orderId         String
