@@ -1,5 +1,4 @@
-import { Preference } from "mercadopago";
-import { mpClient } from "./mercadopago";
+import { preferenceClient } from "@/app/lib/mercadopago";
 
 type CreatePreferenceInput = {
   paymentId: string;
@@ -12,9 +11,7 @@ export async function createMercadoPagoPreference({
   orderId,
   amount,
 }: CreatePreferenceInput) {
-  const preference = new Preference(mpClient);
-
-  const response = await preference.create({
+  const response = await preferenceClient.create({
     body: {
       // TODO:
       // In the future, items should come from the cart/order itself.
@@ -50,11 +47,11 @@ export async function createMercadoPagoPreference({
 
       notification_url: "http://localhost:3000/api/webhooks/mercadopago",
 
-      back_urls: {
-        success: "http://localhost:3000/payments/success",
-        failure: "http://localhost:3000/payments/failure",
-        pending: "http://localhost:3000/payments/pending",
-      },
+      /*back_urls: {
+        //  success: "http://localhost:3000/payments/success",
+        //  failure: "http://localhost:3000/payments/failure",
+        //  pending: "http://localhost:3000/payments/pending",
+      },*/
     },
   });
   return response;
