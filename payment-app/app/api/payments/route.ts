@@ -38,6 +38,6 @@ export async function POST(request: Request) {
     message: "payment created",
     paymentId: payment.id,
     preferenceId: preference.id,
-    checkoutUrl: preference.init_point,
+    checkoutUrl: preference.sandbox_init_point,
   });
 }
