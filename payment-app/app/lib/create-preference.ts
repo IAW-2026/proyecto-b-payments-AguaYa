@@ -45,7 +45,7 @@ export async function createMercadoPagoPreference({
 
       external_reference: paymentId,
 
-      notification_url: "http://localhost:3000/api/webhooks/mercadopago",
+      notification_url: process.env.MP_WEBHOOK_URL,
 
       /*back_urls: {
         //  success: "http://localhost:3000/payments/success",
