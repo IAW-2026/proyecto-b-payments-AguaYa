@@ -3,8 +3,8 @@ POST http://localhost:3000/api/payments
 Content-Type: application/json
 
 {
-  "orderId": "order_16",
-  "buyerId": "buyer_3",
-  "sellerId": "seller_6",
+  "orderId": "order_17",
+  "buyerId": "buyer_4",
+  "sellerId": "seller_5",
   "amount": 5000
 }

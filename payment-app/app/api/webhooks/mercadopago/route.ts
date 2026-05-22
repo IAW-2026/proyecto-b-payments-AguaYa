@@ -32,26 +32,66 @@ export async function POST(request: Request) {
       );
     }
 
-    // 3. Actualizar el pago local por su id (@unique). updateMany no lanza si no existe,
-    //    así podemos distinguir el caso "pago no encontrado".
-    const result = await prisma.payment.updateMany({
+    // 3. Buscar el pago local por su id (@unique).
+    const localPayment = await prisma.payment.findUnique({
+      where: { id: externalReference },
+    });
+
+    if (!localPayment) {
+      // No se encontró ningún pago local con ese id.
+      return NextResponse.json({ error: "Payment not found" }, { status: 404 });
+    }
+
+    // 4. Idempotencia: Mercado Pago puede reenviar la misma notificación varias veces.
+    //    Si el estado no cambió, respondemos 200 sin volver a escribir.
+    if (localPayment.mpStatus === mpPayment.status) {
+      return NextResponse.json({ success: true, alreadyProcessed: true });
+    }
+
+    // 5. Actualizar el pago local con el detalle confirmado por Mercado Pago.
+    const newStatus = mapStatus(mpPayment.status);
+
+    await prisma.payment.update({
       where: { id: externalReference },
       data: {
         mpPaymentId: mpPayment.id != null ? String(mpPayment.id) : undefined,
         mpStatus: mpPayment.status ?? undefined,
         mpPaymentMethod: mpPayment.payment_method_id ?? undefined,
-        status: mapStatus(mpPayment.status),
+        status: newStatus,
       },
     });
-
-    if (result.count === 0) {
-      // No se encontró ningún pago local con ese id.
-      return NextResponse.json({ error: "Payment not found" }, { status: 404 });
-    }
 
     console.log(
       `✅ Pago local ${externalReference} actualizado a "${mpPayment.status}".`,
     );
+
+    // 6. Si el pago quedó aprobado, generamos su factura (una sola por pago).
+    if (newStatus === "approved") {
+      const existingInvoice = await prisma.invoice.findUnique({
+        where: { paymentId: localPayment.id },
+      });
+
+      if (!existingInvoice) {
+        // TODO: el desglose real de subtotal e IVA debería obtenerse del detalle
+        //       de pago de Mercado Pago (mpPayment). Por ahora guardamos el total
+        //       sin discriminar impuestos.
+        const total = localPayment.amount;
+        const subtotal = total;
+        const tax = 0;
+
+        await prisma.invoice.create({
+          data: {
+            paymentId: localPayment.id,
+            subtotal,
+            tax,
+            total,
+          },
+        });
+
+        console.log(`🧾 Factura generada para el pago ${localPayment.id}.`);
+      }
+    }
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("❌ Error en el Webhook de Mercado Pago:", error);
