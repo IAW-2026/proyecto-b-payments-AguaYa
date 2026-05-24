@@ -1,5 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+import { prisma } from "@/app/lib/prisma";
 import { fetchRecentSellerPayments, fetchRecentSellerInvoices } from "@/app/lib/data";
 import RecentPayments from "@/app/ui/shared/recent-payments";
 import RecentInvoices from "@/app/ui/shared/recent-invoices";
@@ -8,9 +9,16 @@ export default async function SellerDashboardPage() {
   const { userId } = await auth();
   if (!userId) redirect("/sign-in");
 
+  const profile = await prisma.externalProfile.findUnique({
+    where: { clerkId: userId },
+  });
+
+  // Si no tiene perfil o no es vendedor, volver al selector
+  if (!profile?.sellerId) redirect("/select-role");
+
   const [payments, invoices] = await Promise.all([
-    fetchRecentSellerPayments(userId),
-    fetchRecentSellerInvoices(userId),
+    fetchRecentSellerPayments(profile.sellerId),
+    fetchRecentSellerInvoices(profile.sellerId),
   ]);
 
   return (
