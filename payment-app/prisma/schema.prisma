@@ -41,6 +41,14 @@ model Invoice {
   payment   Payment  @relation(fields: [paymentId], references: [id])
 }
 
+model ExternalProfile {
+  id        String   @id @default(cuid())
+  clerkId   String   @unique
+  buyerId   String?
+  sellerId  String?
+  createdAt DateTime @default(now())
+}
+
 enum PaymentStatus {
   pending
   cancelled
