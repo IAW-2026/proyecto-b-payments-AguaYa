@@ -13,6 +13,9 @@ export default async function SelectRolePage() {
   const hasBuyer  = !!profile.buyerId;
   const hasSeller = !!profile.sellerId;
 
+  // Sin cuenta en ninguna app → página explicativa
+  if (!hasBuyer && !hasSeller) redirect("/no-account");
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50">
       <div className="text-center">

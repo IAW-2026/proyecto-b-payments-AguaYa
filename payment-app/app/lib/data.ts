@@ -23,6 +23,10 @@ async function fetchExternalId(
     return (data[field] as string) ?? null;
   } catch {
     // Cubre: timeout (AbortError), red caída, JSON inválido, etc.
+    // LIMITACIÓN: no distinguimos entre "la app está caída" y "el usuario no
+    // existe en esa app" — en ambos casos devolvemos null. Consecuencia: si
+    // la app está caída en el momento del primer login, el perfil se guarda con
+    // null y el portal aparece deshabilitado hasta el próximo login exitoso.
     return null;
   }
 }
