@@ -10,7 +10,7 @@ const EXTERNAL_FETCH_TIMEOUT_MS = 3_000;
 async function fetchExternalId(
   baseUrl: string | undefined,
   clerkId: string,
-  field: "buyerId" | "sellerId"
+  field: "buyerId" | "sellerId",
 ): Promise<string | null> {
   if (!baseUrl) return null;
   try {
@@ -41,6 +41,18 @@ async function fetchExternalId(
  *   válido si una app externa está temporalmente caída).
  */
 export async function resolveExternalProfile(clerkId: string) {
+  // Mock para desarrollo: usar IDs falsos y persistirlos en la DB para que
+  // los dashboards (que leen la DB directamente) también funcionen.
+  const mockBuyerId = process.env.MOCK_BUYER_ID;
+  const mockSellerId = process.env.MOCK_SELLER_ID;
+  if (mockBuyerId || mockSellerId) {
+    return prisma.externalProfile.upsert({
+      where: { clerkId },
+      create: { clerkId, buyerId: mockBuyerId ?? null, sellerId: mockSellerId ?? null },
+      update: { buyerId: mockBuyerId ?? null, sellerId: mockSellerId ?? null },
+    });
+  }
+
   const existing = await prisma.externalProfile.findUnique({
     where: { clerkId },
   });
@@ -59,15 +71,16 @@ export async function resolveExternalProfile(clerkId: string) {
       : fetchExternalId(process.env.SELLER_APP_URL, clerkId, "sellerId"),
   ]);
 
-  const buyerId  = buyerResult.status  === "fulfilled" ? buyerResult.value  : null;
-  const sellerId = sellerResult.status === "fulfilled" ? sellerResult.value : null;
+  const buyerId = buyerResult.status === "fulfilled" ? buyerResult.value : null;
+  const sellerId =
+    sellerResult.status === "fulfilled" ? sellerResult.value : null;
 
   // Crear o actualizar (upsert) — solo actualiza campos que pasaron de null a valor
   return prisma.externalProfile.upsert({
     where: { clerkId },
     create: { clerkId, buyerId, sellerId },
     update: {
-      ...(!existing?.buyerId  && buyerId  ? { buyerId }  : {}),
+      ...(!existing?.buyerId && buyerId ? { buyerId } : {}),
       ...(!existing?.sellerId && sellerId ? { sellerId } : {}),
     },
   });
@@ -163,7 +176,7 @@ export async function fetchRecentSellerInvoices(sellerId: string, limit = 5) {
 
 export async function fetchBuyerPayments(
   buyerId: string,
-  filters: { status?: PaymentStatus; from?: string; to?: string } = {}
+  filters: { status?: PaymentStatus; from?: string; to?: string } = {},
 ) {
   const { status, from, to } = filters;
   return prisma.payment.findMany({
