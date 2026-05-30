@@ -1,12 +1,10 @@
-//  AGREGA ESTO (Instancia directa de Prisma para el script):
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
+
 async function main() {
-  // Limpiar tablas
   await prisma.payment.deleteMany();
   await prisma.paymentAdmin.deleteMany();
 
-  // Crear admins
   await prisma.paymentAdmin.createMany({
     data: [
       {
@@ -24,69 +22,87 @@ async function main() {
     ],
   });
 
-  // Crear payments
-  await prisma.payment.createMany({
-    data: [
-      {
-        orderId: "order_1",
-        buyerId: "buyer_1",
-        sellerId: "seller_1",
-        amount: 15000,
-        status: "approved",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-
-        mpPaymentId: "mp_1001",
-        mpStatus: "approved",
-        mpPaymentMethod: "visa",
-        mpPaymentDate: new Date(),
+  await prisma.payment.create({
+    data: {
+      orderId: "order_1",
+      buyerId: "buyer_1",
+      buyerName: "Juan Pérez",
+      buyerEmail: "juan@mail.com",
+      sellerId: "seller_1",
+      sellerName: "Vendedor AguaYa",
+      amount: 1000,
+      status: "approved",
+      mpPaymentId: "mp_1001",
+      mpStatus: "approved",
+      mpPaymentMethod: "visa",
+      mpPaymentDate: new Date(),
+      items: {
+        create: [
+          {
+            productId: "prod_1",
+            productName: "Agua 5L",
+            productImageUrl: "https://picsum.photos/seed/agua/200/300",
+            quantity: 2,
+            unitPrice: 500,
+            subtotal: 1000,
+          },
+        ],
       },
+    },
+  });
 
-      {
-        orderId: "order_2",
-        buyerId: "buyer_2",
-        sellerId: "seller_1",
-        amount: 8900,
-        status: "pending",
-        createdAt: new Date(),
-        updatedAt: new Date(),
+  await prisma.payment.create({
+    data: {
+      orderId: "order_2",
+      buyerId: "buyer_2",
+      buyerName: "María García",
+      buyerEmail: "maria@mail.com",
+      sellerId: "seller_1",
+      sellerName: "Vendedor AguaYa",
+      amount: 1500,
+      status: "pending",
+      items: {
+        create: [
+          {
+            productId: "prod_2",
+            productName: "Agua 10L",
+            productImageUrl: "https://picsum.photos/seed/agua10/200/300",
+            quantity: 3,
+            unitPrice: 500,
+            subtotal: 1500,
+          },
+        ],
       },
+    },
+  });
 
-      {
-        orderId: "order_3",
-        buyerId: "buyer_3",
-        sellerId: "seller_2",
-        amount: 22000,
-        status: "rejected",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-
-        mpPaymentId: "mp_1002",
-        mpStatus: "rejected",
-        mpPaymentMethod: "mastercard",
-        mpPaymentDate: new Date(),
+  await prisma.payment.create({
+    data: {
+      orderId: "order_3",
+      buyerId: "buyer_3",
+      buyerName: "Carlos López",
+      buyerEmail: "carlos@mail.com",
+      sellerId: "seller_2",
+      sellerName: "Distribuidora Sur",
+      amount: 2000,
+      status: "rejected",
+      mpPaymentId: "mp_1002",
+      mpStatus: "rejected",
+      mpPaymentMethod: "mastercard",
+      mpPaymentDate: new Date(),
+      items: {
+        create: [
+          {
+            productId: "prod_1",
+            productName: "Agua 5L",
+            productImageUrl: "https://picsum.photos/seed/agua/200/300",
+            quantity: 4,
+            unitPrice: 500,
+            subtotal: 2000,
+          },
+        ],
       },
-
-      {
-        orderId: "order_4",
-        buyerId: "buyer_4",
-        sellerId: "seller_3",
-        amount: 12000,
-        status: "cancelled",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-
-      {
-        orderId: "order_5",
-        buyerId: "buyer_5",
-        sellerId: "seller_2",
-        amount: 30000,
-        status: "expired",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-    ],
+    },
   });
 
   console.log("Seed completed.");
