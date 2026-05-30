@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/app/lib/prisma";
 import { PaymentStatus } from "@prisma/client";
-import { paymentClient } from "@/app/lib/mercadopago";
+import { paymentClient } from "@/app/lib/mercadopago/index";
 
 // Recibe la notificación de Mercado Pago y actualiza el estado del pago local.
 //
