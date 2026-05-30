@@ -10,14 +10,14 @@ Content-Type: application/json
 x-api-key: {{INTERNAL_API_KEY}}
 
 {
-  "orderId": "order_17",
+  "orderId": "order_18",
   "buyer": {
-    "id": "buyer_4",
+    "id": "buyer_5",
     "name": "Juan Pérez",
     "email": "juan@mail.com"
   },
   "seller": {
-    "id": "seller_5",
+    "id": "seller_6",
     "name": "Vendedor AguaYa"
   },
   "amount": 1000,

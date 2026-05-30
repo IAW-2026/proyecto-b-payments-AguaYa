@@ -1,26 +1,45 @@
+import crypto from "crypto";
 import { NextResponse } from "next/server";
 import { prisma } from "@/app/lib/prisma";
 import { PaymentStatus } from "@prisma/client";
 import { paymentClient } from "@/app/lib/mercadopago/index";
 
-// Recibe la notificación de Mercado Pago y actualiza el estado del pago local.
-//
-// Mercado Pago notifica con:
+// Recibe la notificación de Mercado Pago para actualizar el estado del payment en la base de datos.
+// estructura del request que envía Mercado Pago al webhook:
 //   { "type": "payment", "data": { "id": "<id del pago en MP>" } }
 //
 // Con ese id consultamos su API para obtener el detalle real del pago
-// (status, external_reference, payment_method_id) y actualizamos el pago local.
+// (status, external_reference, payment_method_id) y actualizamos el payment en la base de datos.
 export async function POST(request: Request) {
   try {
+    // 1. Verificar la firma de MercadoPago para asegurarnos que el request viene de mercadopago.
+    const xSignature = request.headers.get("x-signature");
+    const xRequestId = request.headers.get("x-request-id");
+    const dataId = new URL(request.url).searchParams.get("data.id");
+
+    const parts = xSignature?.split(",");
+    const ts = parts?.find((p) => p.startsWith("ts="))?.split("=")[1];
+    const v1 = parts?.find((p) => p.startsWith("v1="))?.split("=")[1];
+
+    const signedTemplate = `id:${dataId};request-id:${xRequestId};ts:${ts};`;
+    const generatedHash = crypto
+      .createHmac("sha256", process.env.MP_WEBHOOK_SECRET!)
+      .update(signedTemplate)
+      .digest("hex");
+
+    if (generatedHash !== v1) {
+      return new Response("Unauthorized", { status: 401 });
+    }
+
     const body = await request.json();
 
-    // 1. Filtrar: solo nos interesan las notificaciones de tipo "payment".
+    // 2. Filtrar: solo nos interesan las notificaciones de tipo "payment".
     if (body.type !== "payment" || !body.data?.id) {
       // Otros eventos los confirmamos con 200 para que MP no reintente.
       return NextResponse.json({ ignored: true });
     }
 
-    // 2. Consultar a la API de Mercado Pago el detalle real del pago.
+    // 3. Consultar a la API de Mercado Pago el detalle real del pago.
     const mpPayment = await paymentClient.get({ id: body.data.id });
 
     // external_reference es nuestro id de pago local (el payment.id que generamos).
@@ -32,23 +51,33 @@ export async function POST(request: Request) {
       );
     }
 
-    // 3. Buscar el pago local por su id (@unique).
-    const localPayment = await prisma.payment.findUnique({
+    // 4. Buscar el payment por su id (@unique).
+    const payment = await prisma.payment.findUnique({
       where: { id: externalReference },
     });
 
-    if (!localPayment) {
-      // No se encontró ningún pago local con ese id.
+    if (!payment) {
       return NextResponse.json({ error: "Payment not found" }, { status: 404 });
     }
 
-    // 4. Idempotencia: Mercado Pago puede reenviar la misma notificación varias veces.
+    // 5. Idempotencia: Mercado Pago puede reenviar la misma notificación varias veces.
     //    Si el estado no cambió, respondemos 200 sin volver a escribir.
-    if (localPayment.mpStatus === mpPayment.status) {
+    if (payment.mpStatus === mpPayment.status) {
       return NextResponse.json({ success: true, alreadyProcessed: true });
     }
 
-    // 5. Actualizar el pago local con el detalle confirmado por Mercado Pago.
+    // 6. Estados terminales: una vez que el payment llegó a un estado final no puede cambiar.
+    const terminalStatuses: PaymentStatus[] = [
+      "approved",
+      "rejected",
+      "cancelled",
+      "expired",
+    ];
+    if (terminalStatuses.includes(payment.status)) {
+      return NextResponse.json({ success: true, alreadyProcessed: true });
+    }
+
+    // 7. Actualizar el payment con el detalle confirmado por Mercado Pago.
     const newStatus = mapStatus(mpPayment.status);
 
     await prisma.payment.update({
@@ -62,33 +91,33 @@ export async function POST(request: Request) {
     });
 
     console.log(
-      `✅ Pago local ${externalReference} actualizado a "${mpPayment.status}".`,
+      `✅ Payment ${externalReference} actualizado a "${mpPayment.status}".`,
     );
 
-    // 6. Si el pago quedó aprobado, generamos su factura (una sola por pago).
+    // 8. Si el payment quedó aprobado, generamos su factura (una sola por payment).
     if (newStatus === "approved") {
       const existingInvoice = await prisma.invoice.findUnique({
-        where: { paymentId: localPayment.id },
+        where: { paymentId: payment.id },
       });
 
       if (!existingInvoice) {
         // TODO: el desglose real de subtotal e IVA debería obtenerse del detalle
         //       de pago de Mercado Pago (mpPayment). Por ahora guardamos el total
         //       sin discriminar impuestos.
-        const total = localPayment.amount;
+        const total = payment.amount;
         const subtotal = total;
         const tax = 0;
 
         await prisma.invoice.create({
           data: {
-            paymentId: localPayment.id,
+            paymentId: payment.id,
             subtotal,
             tax,
             total,
           },
         });
 
-        console.log(`🧾 Factura generada para el pago ${localPayment.id}.`);
+        console.log(`🧾 Factura generada para el payment ${payment.id}.`);
       }
     }
 
