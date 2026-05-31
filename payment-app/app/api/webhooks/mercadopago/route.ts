@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/app/lib/prisma";
 import { PaymentStatus } from "@prisma/client";
 import { paymentClient } from "@/app/lib/mercadopago/index";
+import { notifyPaymentApproved } from "@/app/lib/seller-app/notify-payment";
 
 // Recibe la notificación de Mercado Pago para actualizar el estado del payment en la base de datos.
 // estructura del request que envía Mercado Pago al webhook:
@@ -118,6 +119,18 @@ export async function POST(request: Request) {
         });
 
         console.log(`🧾 Factura generada para el payment ${payment.id}.`);
+      }
+
+      try {
+        await notifyPaymentApproved({
+          orderId: payment.orderId,
+          transactionId: payment.id,
+          amount: payment.amount,
+        });
+        console.log(`📦 SellerApp notificada para la orden ${payment.orderId}.`);
+      } catch (error) {
+        // No fallamos el webhook si seller no responde — MP ya recibió su 200.
+        console.error(`❌ Error al notificar a SellerApp:`, error);
       }
     }
 
