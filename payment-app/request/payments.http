@@ -1,10 +1,33 @@
+//la buyer app utiliza este endpoint para crear un nuevo pago local en nuestra base de datos, 
+//y a su vez crear la preferencia de pago correspondiente en MercadoPago, que es la que se va 
+//a usar para redirigir al usuario al checkout de MercadoPago y procesar el pago.
+//se protege este endpoint con una API Key simple para evitar que cualquiera pueda crear pagos en nuestra aplicación.
+@INTERNAL_API_KEY = un-secreto-cualquiera-para-dev
+
 ### Create payment
 POST http://localhost:3000/api/payments
 Content-Type: application/json
+x-api-key: {{INTERNAL_API_KEY}}
 
 {
-  "orderId": "order_10",
-  "buyerId": "buyer_10",
-  "sellerId": "seller_2",
-  "amount": 25000
+  "orderId": "order_18",
+  "buyer": {
+    "id": "buyer_5",
+    "name": "Juan Pérez",
+    "email": "juan@mail.com"
+  },
+  "seller": {
+    "id": "seller_6",
+    "name": "Vendedor AguaYa"
+  },
+  "amount": 1000,
+  "items": [
+    {
+      "id": "prod_1",
+      "name": "Agua 5L",
+      "imageUrl": "https://picsum.photos/200/300",
+      "quantity": 2,
+      "unitPrice": 500
+    }
+  ]
 }

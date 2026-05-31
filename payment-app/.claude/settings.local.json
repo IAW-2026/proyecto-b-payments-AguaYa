@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\Usuario\\\\Desktop\\\\realPaymentApp\\\\proyecto-b-payments-AguaYa\\\\payment-app\" -Recurse -Name)",
+      "Bash(Select-Object -First 80)"
+    ]
+  }
+}

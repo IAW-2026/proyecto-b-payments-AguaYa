@@ -10,20 +10,49 @@ datasource db {
 model Payment {
   id              String        @id @default(cuid())
   orderId         String
+  
   buyerId         String
+  buyerName       String
+  buyerEmail      String
+  
   sellerId        String
+  sellerName      String
+  
   amount          Int
+  
   status          PaymentStatus
+  
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
-  mpPreferenceId String?
+  
+  mpPreferenceId  String?
   mpPaymentId     String?
   mpStatus        String?
   mpPaymentMethod String?
   mpPaymentDate   DateTime?
+  
   invoice         Invoice?
+  
+  items           PaymentItemSnapshot[]
 }
+//se guarda un snapshot del item que compone el pedido
+model PaymentItemSnapshot {
+  id          String   @id @default(cuid())
 
+  paymentId   String
+
+  productId       String?
+  productName     String
+  productImageUrl String?
+
+  quantity    Int
+
+  unitPrice   Int
+
+  subtotal    Int
+
+  payment      Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+}
 model PaymentAdmin {
   userId         String
   paymentAdminId String   @id @default(cuid())
@@ -39,6 +68,14 @@ model Invoice {
   total     Int
   issuedAt  DateTime @default(now())
   payment   Payment  @relation(fields: [paymentId], references: [id])
+}
+
+model ExternalProfile {
+  id        String   @id @default(cuid())
+  clerkId   String   @unique
+  buyerId   String?
+  sellerId  String?
+  createdAt DateTime @default(now())
 }
 
 enum PaymentStatus {
