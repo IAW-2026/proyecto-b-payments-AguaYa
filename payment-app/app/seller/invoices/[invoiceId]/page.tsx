@@ -54,7 +54,7 @@ export default async function InvoiceDetailPage({
           value={`$ ${invoice.subtotal.toLocaleString("es-AR")}`}
         />
         <Row
-          label="IVA (21%)"
+          label="IVA est. (21%)"
           value={`$ ${invoice.tax.toLocaleString("es-AR")}`}
         />
         <Row

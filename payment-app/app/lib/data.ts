@@ -263,10 +263,20 @@ export async function fetchSellerInvoices(sellerId: string) {
   });
 }
 
+export const PAGE_SIZE = 10;
+
+type PaymentsFilters = {
+  status?: PaymentStatus;
+  from?: string;
+  to?: string;
+  query?: string;
+  page?: number;
+};
+
 function paymentsFiltersWhere(
-  filters: { status?: PaymentStatus; from?: string; to?: string },
+  filters: Omit<PaymentsFilters, "page">,
 ) {
-  const { status, from, to } = filters;
+  const { status, from, to, query } = filters;
   return {
     ...(status ? { status } : {}),
     ...(from || to
@@ -277,16 +287,28 @@ function paymentsFiltersWhere(
           },
         }
       : {}),
+    ...(query
+      ? {
+          OR: [
+            { orderId: { contains: query, mode: "insensitive" as const } },
+            { buyerName: { contains: query, mode: "insensitive" as const } },
+            { sellerName: { contains: query, mode: "insensitive" as const } },
+          ],
+        }
+      : {}),
   };
 }
 
 export async function fetchBuyerPayments(
   buyerId: string,
-  filters: { status?: PaymentStatus; from?: string; to?: string } = {},
+  filters: PaymentsFilters = {},
 ) {
+  const { page = 1, ...rest } = filters;
   return prisma.payment.findMany({
-    where: { buyerId, ...paymentsFiltersWhere(filters) },
+    where: { buyerId, ...paymentsFiltersWhere(rest) },
     orderBy: { createdAt: "desc" },
+    skip: (page - 1) * PAGE_SIZE,
+    take: PAGE_SIZE,
     select: {
       id: true,
       orderId: true,
@@ -299,13 +321,25 @@ export async function fetchBuyerPayments(
   });
 }
 
+export async function countBuyerPayments(
+  buyerId: string,
+  filters: Omit<PaymentsFilters, "page"> = {},
+) {
+  return prisma.payment.count({
+    where: { buyerId, ...paymentsFiltersWhere(filters) },
+  });
+}
+
 export async function fetchSellerPayments(
   sellerId: string,
-  filters: { status?: PaymentStatus; from?: string; to?: string } = {},
+  filters: PaymentsFilters = {},
 ) {
+  const { page = 1, ...rest } = filters;
   return prisma.payment.findMany({
-    where: { sellerId, ...paymentsFiltersWhere(filters) },
+    where: { sellerId, ...paymentsFiltersWhere(rest) },
     orderBy: { createdAt: "desc" },
+    skip: (page - 1) * PAGE_SIZE,
+    take: PAGE_SIZE,
     select: {
       id: true,
       orderId: true,
@@ -316,4 +350,63 @@ export async function fetchSellerPayments(
       buyerName: true,
     },
   });
+}
+
+export async function countSellerPayments(
+  sellerId: string,
+  filters: Omit<PaymentsFilters, "page"> = {},
+) {
+  return prisma.payment.count({
+    where: { sellerId, ...paymentsFiltersWhere(filters) },
+  });
+}
+
+function invoicesSearchWhere(query?: string) {
+  return query
+    ? { payment: { orderId: { contains: query, mode: "insensitive" as const } } }
+    : {};
+}
+
+export async function fetchBuyerInvoicesPaged(buyerId: string, page = 1, query?: string) {
+  return prisma.invoice.findMany({
+    where: { payment: { buyerId }, ...invoicesSearchWhere(query) },
+    orderBy: { issuedAt: "desc" },
+    skip: (page - 1) * PAGE_SIZE,
+    take: PAGE_SIZE,
+    select: {
+      id: true,
+      paymentId: true,
+      subtotal: true,
+      tax: true,
+      total: true,
+      issuedAt: true,
+      payment: { select: { orderId: true, status: true } },
+    },
+  });
+}
+
+export async function countBuyerInvoices(buyerId: string, query?: string) {
+  return prisma.invoice.count({ where: { payment: { buyerId }, ...invoicesSearchWhere(query) } });
+}
+
+export async function fetchSellerInvoicesPaged(sellerId: string, page = 1, query?: string) {
+  return prisma.invoice.findMany({
+    where: { payment: { sellerId }, ...invoicesSearchWhere(query) },
+    orderBy: { issuedAt: "desc" },
+    skip: (page - 1) * PAGE_SIZE,
+    take: PAGE_SIZE,
+    select: {
+      id: true,
+      paymentId: true,
+      subtotal: true,
+      tax: true,
+      total: true,
+      issuedAt: true,
+      payment: { select: { orderId: true, status: true } },
+    },
+  });
+}
+
+export async function countSellerInvoices(sellerId: string, query?: string) {
+  return prisma.invoice.count({ where: { payment: { sellerId }, ...invoicesSearchWhere(query) } });
 }

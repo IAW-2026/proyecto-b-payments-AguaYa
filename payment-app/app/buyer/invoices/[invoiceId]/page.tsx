@@ -36,7 +36,7 @@ export default async function InvoiceDetailPage({
         <Row label="Payment method" value={invoice.payment.mpPaymentMethod ?? "—"} />
         <Row label="Issued at" value={invoice.issuedAt.toLocaleDateString("es-AR", { year: "numeric", month: "long", day: "numeric" })} />
         <Row label="Subtotal" value={`$ ${invoice.subtotal.toLocaleString("es-AR")}`} />
-        <Row label="IVA (21%)" value={`$ ${invoice.tax.toLocaleString("es-AR")}`} />
+        <Row label="IVA est. (21%)" value={`$ ${invoice.tax.toLocaleString("es-AR")}`} />
         <Row label="Total" value={`$ ${invoice.total.toLocaleString("es-AR")}`} bold />
       </div>
 
