@@ -40,12 +40,13 @@ export default async function InvoiceDetailPage({
       </div>
 
       <div className="mt-6">
-        <button
-          disabled
-          className="rounded-lg bg-gray-100 px-5 py-2.5 text-sm font-medium text-gray-400 cursor-not-allowed"
+        <a
+          href={`/api/buyer/invoices/${invoiceId}/pdf`}
+          download
+          className="inline-block rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-700 transition-colors"
         >
-          Download PDF (coming soon)
-        </button>
+          Download PDF
+        </a>
       </div>
     </main>
   );
