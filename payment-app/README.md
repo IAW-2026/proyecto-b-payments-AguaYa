@@ -1,36 +1,46 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AguaYa — Payments App
 
-## Getting Started
+Aplicación de pagos para el ecosistema AguaYa. Gestiona los pagos iniciados desde la Buyer App, procesa las notificaciones de Mercado Pago vía webhook y genera facturas descargables en PDF.
 
-First, run the development server:
+## Deploy
+
+[https://proyecto-b-payments-agua-ya.vercel.app/](https://proyecto-b-payments-agua-ya.vercel.app/)
+
+## Stack
+
+- **Framework:** Next.js (App Router)
+- **Base de datos:** PostgreSQL (Neon) + Prisma ORM
+- **Autenticación:** Clerk
+- **Pagos:** Mercado Pago (sandbox)
+- **Estilos:** Tailwind CSS
+
+## Cómo probar la app
+
+1. Ingresá al [link de deploy](https://proyecto-b-payments-agua-ya.vercel.app/)
+2. Creá una cuenta con cualquier email o usá Google/GitHub
+3. Al iniciar sesión, la app te asigna automáticamente IDs de prueba (buyer y seller)
+4. Seleccioná el rol que querés explorar:
+   - **Comprador:** ve tus pagos e invoices, descargá PDFs
+   - **Vendedor:** ve los pagos recibidos y las facturas emitidas
+5. Podés cambiar de rol en cualquier momento desde **Configuración**
+
+> Los datos de prueba ya están precargados en la base de datos (pagos aprobados, pendientes, rechazados y sus facturas).
+
+## Desarrollo local
 
 ```bash
+npm install
+cp .env.example .env.local
+# Completar las variables en .env.local
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Para cargar datos de prueba:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npx prisma db seed
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Variables de entorno
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Ver [.env.example](.env.example) para la lista completa de variables requeridas.
