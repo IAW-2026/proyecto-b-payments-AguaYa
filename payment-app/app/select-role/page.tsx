@@ -5,8 +5,12 @@ import Link from "next/link";
 import { resolveExternalProfile } from "@/app/lib/data";
 
 export default async function SelectRolePage() {
-  const { userId } = await auth();
+  const { userId, sessionClaims } = await auth();
   if (!userId) redirect("/sign-in");
+
+  if (sessionClaims?.metadata?.role === "admin_payments") {
+    redirect("/admin/dashboard");
+  }
 
   const profile = await resolveExternalProfile(userId);
 
