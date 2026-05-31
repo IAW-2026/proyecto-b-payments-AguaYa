@@ -31,6 +31,14 @@ export async function GET(
           orderId: true,
           buyerName: true,
           buyerEmail: true,
+          sellerName: true,
+          items: {
+            select: {
+              productName: true,
+              quantity: true,
+              unitPrice: true,
+            },
+          },
         },
       },
     },
