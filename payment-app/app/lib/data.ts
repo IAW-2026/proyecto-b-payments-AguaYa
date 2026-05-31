@@ -190,6 +190,29 @@ export async function fetchBuyerInvoiceById(invoiceId: string, buyerId: string) 
           orderId: true,
           buyerName: true,
           buyerEmail: true,
+          sellerName: true,
+          status: true,
+          mpPaymentMethod: true,
+        },
+      },
+    },
+  });
+}
+
+export async function fetchSellerInvoiceById(invoiceId: string, sellerId: string) {
+  return prisma.invoice.findFirst({
+    where: { id: invoiceId, payment: { sellerId } },
+    select: {
+      id: true,
+      subtotal: true,
+      tax: true,
+      total: true,
+      issuedAt: true,
+      payment: {
+        select: {
+          orderId: true,
+          buyerName: true,
+          buyerEmail: true,
           status: true,
           mpPaymentMethod: true,
         },
@@ -201,6 +224,27 @@ export async function fetchBuyerInvoiceById(invoiceId: string, buyerId: string) 
 export async function fetchBuyerInvoices(buyerId: string) {
   return prisma.invoice.findMany({
     where: { payment: { buyerId } },
+    orderBy: { issuedAt: "desc" },
+    select: {
+      id: true,
+      paymentId: true,
+      subtotal: true,
+      tax: true,
+      total: true,
+      issuedAt: true,
+      payment: {
+        select: {
+          orderId: true,
+          status: true,
+        },
+      },
+    },
+  });
+}
+
+export async function fetchSellerInvoices(sellerId: string) {
+  return prisma.invoice.findMany({
+    where: { payment: { sellerId } },
     orderBy: { issuedAt: "desc" },
     select: {
       id: true,

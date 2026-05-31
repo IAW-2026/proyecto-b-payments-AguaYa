@@ -31,6 +31,7 @@ export default async function InvoiceDetailPage({
 
       <div className="rounded-xl border border-gray-200 bg-white shadow-sm divide-y divide-gray-100 dark:border-gray-700 dark:bg-gray-900 dark:divide-gray-700">
         <Row label="Order ID" value={invoice.payment.orderId} mono />
+        <Row label="Vendedor" value={invoice.payment.sellerName} />
         <Row label="Buyer" value={`${invoice.payment.buyerName} (${invoice.payment.buyerEmail})`} />
         <Row label="Payment method" value={invoice.payment.mpPaymentMethod ?? "—"} />
         <Row label="Issued at" value={invoice.issuedAt.toLocaleDateString("es-AR", { year: "numeric", month: "long", day: "numeric" })} />

@@ -2,7 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { prisma } from "@/app/lib/prisma";
 import { lusitana } from "@/app/ui/fonts";
-import { fetchBuyerInvoices } from "@/app/lib/data";
+import { fetchSellerInvoices } from "@/app/lib/data";
 import InvoicesTable from "@/app/ui/shared/invoices-table";
 
 export default async function SellerInvoicesPage() {
@@ -15,7 +15,7 @@ export default async function SellerInvoicesPage() {
 
   if (!profile?.sellerId) redirect("/select-role");
 
-  const invoices = await fetchBuyerInvoices(profile.sellerId);
+  const invoices = await fetchSellerInvoices(profile.sellerId);
 
   return (
     <main>
