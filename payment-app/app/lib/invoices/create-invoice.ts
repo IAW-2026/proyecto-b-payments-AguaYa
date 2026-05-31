@@ -2,8 +2,13 @@ import { prisma } from "@/app/lib/prisma";
 import { Payment } from "@prisma/client";
 
 const TAX_RATE = 0.21;
-
-export async function createInvoice(payment: Payment): Promise<void> {
+//utliza la fecha de aporbacion de mercadopago para emitir la factura, si no esta disponible utiliza la
+//  fecha actual. Esto es importante porque el cliente necesita la factura con la fecha de
+//  aprobacion del pago, no con la fecha de creacion del payment que puede ser anterior.
+export async function createInvoice(
+  payment: Payment,
+  approvedAt?: string,
+): Promise<void> {
   const existing = await prisma.invoice.findUnique({
     where: { paymentId: payment.id },
   });
@@ -21,6 +26,7 @@ export async function createInvoice(payment: Payment): Promise<void> {
       subtotal,
       tax,
       total,
+      issuedAt: approvedAt ? new Date(approvedAt) : new Date(),
     },
   });
 

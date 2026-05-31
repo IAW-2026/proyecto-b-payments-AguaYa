@@ -67,7 +67,7 @@ export async function POST(request: Request) {
 
     // 6. Si el payment quedó aprobado, generamos la factura y notificamos a SellerApp.
     if (!alreadyProcessed && newStatus === "approved") {
-      await createInvoice(payment);
+      await createInvoice(payment, mpPayment.date_approved ?? undefined);
 
       try {
         await notifyPaymentApproved({

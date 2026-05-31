@@ -5,6 +5,7 @@ type MpPaymentData = {
   id?: number | null;
   status?: string | null;
   payment_method_id?: string | null;
+  date_approved?: string | null;
 };
 
 const terminalStatuses: PaymentStatus[] = [
@@ -34,6 +35,7 @@ export async function updatePaymentStatus(
       mpPaymentId: mpPayment.id != null ? String(mpPayment.id) : undefined,
       mpStatus: mpPayment.status ?? undefined,
       mpPaymentMethod: mpPayment.payment_method_id ?? undefined,
+      mpPaymentDate: mpPayment.date_approved ? new Date(mpPayment.date_approved) : undefined,
       status: newStatus,
     },
   });
