@@ -1,4 +1,4 @@
-import { preferenceClient } from "@/app/lib/mercadopago";
+import { preferenceClient } from "@/app/integrations/mercadopago";
 
 type PreferenceItem = {
   id: string;

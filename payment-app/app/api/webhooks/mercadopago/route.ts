@@ -1,9 +1,9 @@
 import crypto from "crypto";
 import { NextResponse } from "next/server";
 import { prisma } from "@/app/lib/prisma";
-import { PaymentStatus } from "@prisma/client";
-import { paymentClient } from "@/app/lib/mercadopago/index";
-import { notifyPaymentApproved } from "@/app/lib/seller-app/notify-payment";
+import { paymentClient } from "@/app/integrations/mercadopago";
+import { updatePaymentStatus } from "@/app/lib/payments/update-status";
+import { notifyPaymentApproved } from "@/app/integrations/seller-app/notify-payment";
 
 // Recibe la notificación de Mercado Pago para actualizar el estado del payment en la base de datos.
 // estructura del request que envía Mercado Pago al webhook:
@@ -61,66 +61,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Payment not found" }, { status: 404 });
     }
 
-    // 5. Idempotencia: Mercado Pago puede reenviar la misma notificación varias veces.
-    //    Si el estado no cambió, respondemos 200 sin volver a escribir.
-    if (payment.mpStatus === mpPayment.status) {
-      return NextResponse.json({ success: true, alreadyProcessed: true });
-    }
+    // 5. Actualizar el estado del payment con el detalle confirmado por Mercado Pago.
+    const { alreadyProcessed, newStatus } = await updatePaymentStatus(payment, mpPayment);
 
-    // 6. Estados terminales: una vez que el payment llegó a un estado final no puede cambiar.
-    const terminalStatuses: PaymentStatus[] = [
-      "approved",
-      "rejected",
-      "cancelled",
-      "expired",
-    ];
-    if (terminalStatuses.includes(payment.status)) {
-      return NextResponse.json({ success: true, alreadyProcessed: true });
-    }
-
-    // 7. Actualizar el payment con el detalle confirmado por Mercado Pago.
-    const newStatus = mapStatus(mpPayment.status);
-
-    await prisma.payment.update({
-      where: { id: externalReference },
-      data: {
-        mpPaymentId: mpPayment.id != null ? String(mpPayment.id) : undefined,
-        mpStatus: mpPayment.status ?? undefined,
-        mpPaymentMethod: mpPayment.payment_method_id ?? undefined,
-        status: newStatus,
-      },
-    });
-
-    console.log(
-      `✅ Payment ${externalReference} actualizado a "${mpPayment.status}".`,
-    );
-
-    // 8. Si el payment quedó aprobado, generamos su factura (una sola por payment).
-    if (newStatus === "approved") {
-      const existingInvoice = await prisma.invoice.findUnique({
-        where: { paymentId: payment.id },
-      });
-
-      if (!existingInvoice) {
-        // TODO: el desglose real de subtotal e IVA debería obtenerse del detalle
-        //       de pago de Mercado Pago (mpPayment). Por ahora guardamos el total
-        //       sin discriminar impuestos.
-        const total = payment.amount;
-        const subtotal = total;
-        const tax = 0;
-
-        await prisma.invoice.create({
-          data: {
-            paymentId: payment.id,
-            subtotal,
-            tax,
-            total,
-          },
-        });
-
-        console.log(`🧾 Factura generada para el payment ${payment.id}.`);
-      }
-
+    // 6. Si el payment quedó aprobado, notificamos a SellerApp.
+    if (!alreadyProcessed && newStatus === "approved") {
       try {
         await notifyPaymentApproved({
           orderId: payment.orderId,
@@ -134,24 +79,10 @@ export async function POST(request: Request) {
       }
     }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, alreadyProcessed });
   } catch (error) {
     console.error("❌ Error en el Webhook de Mercado Pago:", error);
     // 500 para que Mercado Pago reintente la notificación más tarde.
     return new Response("Internal Server Error", { status: 500 });
-  }
-}
-
-// Traduce los estados de Mercado Pago a nuestro enum PaymentStatus.
-function mapStatus(mpStatus: string | undefined): PaymentStatus {
-  switch (mpStatus) {
-    case "approved":
-      return "approved";
-    case "rejected":
-      return "rejected";
-    case "cancelled":
-      return "cancelled";
-    default:
-      return "pending";
   }
 }

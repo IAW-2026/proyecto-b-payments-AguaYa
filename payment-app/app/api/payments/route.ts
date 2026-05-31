@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/app/lib/prisma";
-import { createMercadoPagoPreference } from "@/app/lib/mercadopago/create-preference";
+import { createMercadoPagoPreference } from "@/app/integrations/mercadopago/create-preference";
 
 // la siguiente es la estructura esperada del header y body de la petición para crear un nuevo pago desde la app de buyer
 /*
