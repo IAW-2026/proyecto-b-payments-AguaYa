@@ -174,6 +174,49 @@ export async function fetchRecentSellerInvoices(sellerId: string, limit = 5) {
   });
 }
 
+export async function fetchBuyerInvoiceById(invoiceId: string, buyerId: string) {
+  return prisma.invoice.findFirst({
+    where: { id: invoiceId, payment: { buyerId } },
+    select: {
+      id: true,
+      subtotal: true,
+      tax: true,
+      total: true,
+      issuedAt: true,
+      payment: {
+        select: {
+          orderId: true,
+          buyerName: true,
+          buyerEmail: true,
+          status: true,
+          mpPaymentMethod: true,
+        },
+      },
+    },
+  });
+}
+
+export async function fetchBuyerInvoices(buyerId: string) {
+  return prisma.invoice.findMany({
+    where: { payment: { buyerId } },
+    orderBy: { issuedAt: "desc" },
+    select: {
+      id: true,
+      paymentId: true,
+      subtotal: true,
+      tax: true,
+      total: true,
+      issuedAt: true,
+      payment: {
+        select: {
+          orderId: true,
+          status: true,
+        },
+      },
+    },
+  });
+}
+
 export async function fetchBuyerPayments(
   buyerId: string,
   filters: { status?: PaymentStatus; from?: string; to?: string } = {},

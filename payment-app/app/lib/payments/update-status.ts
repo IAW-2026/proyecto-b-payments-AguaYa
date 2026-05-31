@@ -5,6 +5,7 @@ type MpPaymentData = {
   id?: number | null;
   status?: string | null;
   payment_method_id?: string | null;
+  date_approved?: string | null;
 };
 
 const terminalStatuses: PaymentStatus[] = [
@@ -34,33 +35,12 @@ export async function updatePaymentStatus(
       mpPaymentId: mpPayment.id != null ? String(mpPayment.id) : undefined,
       mpStatus: mpPayment.status ?? undefined,
       mpPaymentMethod: mpPayment.payment_method_id ?? undefined,
+      mpPaymentDate: mpPayment.date_approved ? new Date(mpPayment.date_approved) : undefined,
       status: newStatus,
     },
   });
 
   console.log(`✅ Payment ${payment.id} actualizado a "${mpPayment.status}".`);
-
-  if (newStatus === "approved") {
-    const existingInvoice = await prisma.invoice.findUnique({
-      where: { paymentId: payment.id },
-    });
-
-    if (!existingInvoice) {
-      // TODO: el desglose real de subtotal e IVA debería obtenerse del detalle
-      //       de pago de Mercado Pago (mpPayment). Por ahora guardamos el total
-      //       sin discriminar impuestos.
-      const total = payment.amount;
-      await prisma.invoice.create({
-        data: {
-          paymentId: payment.id,
-          subtotal: total,
-          tax: 0,
-          total,
-        },
-      });
-      console.log(`🧾 Factura generada para el payment ${payment.id}.`);
-    }
-  }
 
   return { alreadyProcessed: false, newStatus };
 }
