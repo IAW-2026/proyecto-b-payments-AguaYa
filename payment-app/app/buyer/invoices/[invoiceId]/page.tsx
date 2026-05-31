@@ -29,7 +29,7 @@ export default async function InvoiceDetailPage({
         Invoice Detail
       </h1>
 
-      <div className="rounded-xl border border-gray-200 bg-white shadow-sm divide-y divide-gray-100">
+      <div className="rounded-xl border border-gray-200 bg-white shadow-sm divide-y divide-gray-100 dark:border-gray-700 dark:bg-gray-900 dark:divide-gray-700">
         <Row label="Order ID" value={invoice.payment.orderId} mono />
         <Row label="Buyer" value={`${invoice.payment.buyerName} (${invoice.payment.buyerEmail})`} />
         <Row label="Payment method" value={invoice.payment.mpPaymentMethod ?? "—"} />
@@ -65,8 +65,8 @@ function Row({
 }) {
   return (
     <div className="flex justify-between px-6 py-4 text-sm">
-      <span className="text-gray-500">{label}</span>
-      <span className={`${bold ? "font-semibold text-gray-900" : "text-gray-700"} ${mono ? "font-mono text-xs" : ""}`}>
+      <span className="text-gray-500 dark:text-gray-400">{label}</span>
+      <span className={`${bold ? "font-semibold text-gray-900 dark:text-gray-100" : "text-gray-700 dark:text-gray-300"} ${mono ? "font-mono text-xs" : ""}`}>
         {value}
       </span>
     </div>
