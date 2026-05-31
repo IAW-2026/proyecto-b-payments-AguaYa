@@ -65,6 +65,7 @@ export default function RecentPayments({
             <thead>
               <tr className="bg-gray-50 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:bg-gray-800 dark:text-gray-400">
                 <th className="px-6 py-3">Order ID</th>
+                <th className="px-6 py-3">Contraparte</th>
                 <th className="px-6 py-3">Monto</th>
                 <th className="px-6 py-3">Estado</th>
                 <th className="px-6 py-3">Fecha</th>
@@ -75,6 +76,9 @@ export default function RecentPayments({
                 <tr key={payment.id} className="hover:bg-gray-50 transition-colors dark:hover:bg-gray-800">
                   <td className="px-6 py-3 font-mono text-xs text-gray-500 dark:text-gray-400">
                     {payment.orderId}
+                  </td>
+                  <td className="px-6 py-3 text-gray-700 dark:text-gray-300">
+                    {payment.sellerName ?? payment.buyerName ?? "—"}
                   </td>
                   <td className="px-6 py-3 font-semibold text-gray-800 dark:text-gray-100">
                     $ {payment.amount.toLocaleString("es-AR")}

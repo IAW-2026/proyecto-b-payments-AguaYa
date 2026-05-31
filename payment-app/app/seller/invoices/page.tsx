@@ -3,14 +3,14 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { prisma } from "@/app/lib/prisma";
 import { lusitana } from "@/app/ui/fonts";
-import { fetchBuyerInvoicesPaged, countBuyerInvoices, PAGE_SIZE } from "@/app/lib/data";
+import { fetchSellerInvoicesPaged, countSellerInvoices, PAGE_SIZE } from "@/app/lib/data";
 import InvoicesTable from "@/app/ui/shared/invoices-table";
 import Pagination from "@/app/ui/shared/pagination";
 import SearchInput from "@/app/ui/shared/search-input";
 
 type SearchParams = Promise<{ page?: string; query?: string }>;
 
-export default async function BuyerInvoicesPage({
+export default async function SellerInvoicesPage({
   searchParams,
 }: {
   searchParams: SearchParams;
@@ -22,15 +22,15 @@ export default async function BuyerInvoicesPage({
     where: { clerkId: userId },
   });
 
-  if (!profile?.buyerId) redirect("/select-role");
+  if (!profile?.sellerId) redirect("/select-role");
 
   const params = await searchParams;
   const page = Math.max(1, parseInt(params.page ?? "1", 10) || 1);
   const query = params.query;
 
   const [invoices, total] = await Promise.all([
-    fetchBuyerInvoicesPaged(profile.buyerId, page, query),
-    countBuyerInvoices(profile.buyerId, query),
+    fetchSellerInvoicesPaged(profile.sellerId, page, query),
+    countSellerInvoices(profile.sellerId, query),
   ]);
 
   const totalPages = Math.ceil(total / PAGE_SIZE);
@@ -46,7 +46,7 @@ export default async function BuyerInvoicesPage({
       </Suspense>
 
       <div className="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900">
-        <InvoicesTable invoices={invoices} role="buyer" />
+        <InvoicesTable invoices={invoices} role="seller" />
         <Pagination page={page} totalPages={totalPages} searchParams={params} />
       </div>
     </main>

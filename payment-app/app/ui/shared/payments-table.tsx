@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { BuyerPayment, PaymentStatus } from "@/app/lib/definitions";
+import { Payment, PaymentStatus } from "@/app/lib/definitions";
 
 const STATUS_STYLES: Record<PaymentStatus, string> = {
   pending:   "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300",
@@ -30,7 +30,7 @@ function StatusBadge({ status }: { status: PaymentStatus }) {
   );
 }
 
-export default function PaymentsTable({ payments }: { payments: BuyerPayment[] }) {
+export default function PaymentsTable({ payments }: { payments: Payment[] }) {
   if (payments.length === 0) {
     return (
       <p className="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
@@ -45,6 +45,7 @@ export default function PaymentsTable({ payments }: { payments: BuyerPayment[] }
         <thead>
           <tr className="bg-gray-50 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:bg-gray-800 dark:text-gray-400">
             <th className="px-4 py-3">Order ID</th>
+            <th className="px-4 py-3">Nombre</th>
             <th className="px-4 py-3">Amount</th>
             <th className="px-4 py-3">Status</th>
             <th className="px-4 py-3">Date</th>
@@ -56,6 +57,9 @@ export default function PaymentsTable({ payments }: { payments: BuyerPayment[] }
             <tr key={payment.id} className="hover:bg-gray-50 transition-colors dark:hover:bg-gray-800">
               <td className="px-4 py-3 font-mono text-xs text-gray-600 dark:text-gray-400">
                 {payment.orderId}
+              </td>
+              <td className="px-4 py-3 text-gray-700 dark:text-gray-300">
+                {payment.sellerName ?? payment.buyerName ?? "—"}
               </td>
               <td className="px-4 py-3 font-medium dark:text-gray-100">
                 $ {payment.amount.toLocaleString("es-AR")}

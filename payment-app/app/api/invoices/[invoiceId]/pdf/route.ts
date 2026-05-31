@@ -14,12 +14,18 @@ export async function GET(
     where: { clerkId: userId },
   });
 
-  if (!profile?.buyerId) redirect("/select-role");
+  if (!profile?.buyerId && !profile?.sellerId) redirect("/select-role");
 
   const { invoiceId } = await context.params;
 
   const invoice = await prisma.invoice.findFirst({
-    where: { id: invoiceId, payment: { buyerId: profile.buyerId } },
+    where: {
+      id: invoiceId,
+      OR: [
+        ...(profile.buyerId ? [{ payment: { buyerId: profile.buyerId } }] : []),
+        ...(profile.sellerId ? [{ payment: { sellerId: profile.sellerId } }] : []),
+      ],
+    },
     select: {
       id: true,
       subtotal: true,

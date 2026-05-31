@@ -3,7 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { lusitana } from "@/app/ui/fonts";
 import { prisma } from "@/app/lib/prisma";
-import { fetchBuyerPayments, countBuyerPayments, PAGE_SIZE } from "@/app/lib/data";
+import { fetchSellerPayments, countSellerPayments, PAGE_SIZE } from "@/app/lib/data";
 import { PaymentStatus } from "@/app/lib/definitions";
 import PaymentsTable from "@/app/ui/shared/payments-table";
 import PaymentsFilters from "@/app/ui/shared/payments-filters";
@@ -25,7 +25,7 @@ const VALID_STATUSES: PaymentStatus[] = [
   "expired",
 ];
 
-export default async function BuyerPaymentsPage({
+export default async function SellerPaymentsPage({
   searchParams,
 }: {
   searchParams: SearchParams;
@@ -37,7 +37,7 @@ export default async function BuyerPaymentsPage({
     where: { clerkId: userId },
   });
 
-  if (!profile?.buyerId) redirect("/select-role");
+  if (!profile?.sellerId) redirect("/select-role");
 
   const params = await searchParams;
 
@@ -49,8 +49,8 @@ export default async function BuyerPaymentsPage({
   const filters = { status, from: params.from, to: params.to, query: params.query };
 
   const [payments, total] = await Promise.all([
-    fetchBuyerPayments(profile.buyerId, { ...filters, page }),
-    countBuyerPayments(profile.buyerId, filters),
+    fetchSellerPayments(profile.sellerId, { ...filters, page }),
+    countSellerPayments(profile.sellerId, filters),
   ]);
 
   const totalPages = Math.ceil(total / PAGE_SIZE);

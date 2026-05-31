@@ -1,20 +1,24 @@
+import Link from "next/link";
 import clsx from "clsx";
 import { RecentInvoice, PaymentStatus } from "@/app/lib/definitions";
 
 const STATUS_STYLES: Record<PaymentStatus, string> = {
-  pending:   "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300",
-  approved:  "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300",
-  rejected:  "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300",
+  pending:
+    "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300",
+  approved:
+    "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300",
+  rejected: "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300",
   cancelled: "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300",
-  expired:   "bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300",
+  expired:
+    "bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300",
 };
 
 const STATUS_LABELS: Record<PaymentStatus, string> = {
-  pending:   "Pendiente",
-  approved:  "Aprobado",
-  rejected:  "Rechazado",
+  pending: "Pendiente",
+  approved: "Aprobado",
+  rejected: "Rechazado",
   cancelled: "Cancelado",
-  expired:   "Expirado",
+  expired: "Expirado",
 };
 
 function StatusBadge({ status }: { status: PaymentStatus }) {
@@ -22,7 +26,7 @@ function StatusBadge({ status }: { status: PaymentStatus }) {
     <span
       className={clsx(
         "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
-        STATUS_STYLES[status]
+        STATUS_STYLES[status],
       )}
     >
       {STATUS_LABELS[status]}
@@ -32,15 +36,25 @@ function StatusBadge({ status }: { status: PaymentStatus }) {
 
 interface RecentInvoicesProps {
   invoices: RecentInvoice[];
+  viewAllHref: string;
 }
 
-export default function RecentInvoices({ invoices }: RecentInvoicesProps) {
+export default function RecentInvoices({
+  invoices,
+  viewAllHref,
+}: RecentInvoicesProps) {
   return (
     <section className="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900">
       <div className="border-b border-gray-100 px-6 py-4 dark:border-gray-700">
         <h2 className="text-base font-semibold text-gray-800 dark:text-gray-100">
           Últimas facturas
         </h2>
+        <Link
+          href={viewAllHref}
+          className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline transition-colors dark:text-blue-400 dark:hover:text-blue-300"
+        >
+          Ver todas →
+        </Link>
       </div>
 
       {invoices.length === 0 ? (
@@ -62,7 +76,10 @@ export default function RecentInvoices({ invoices }: RecentInvoicesProps) {
             </thead>
             <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
               {invoices.map((invoice) => (
-                <tr key={invoice.id} className="hover:bg-gray-50 transition-colors dark:hover:bg-gray-800">
+                <tr
+                  key={invoice.id}
+                  className="hover:bg-gray-50 transition-colors dark:hover:bg-gray-800"
+                >
                   <td className="px-6 py-3 font-mono text-xs text-gray-500 dark:text-gray-400">
                     {invoice.payment.orderId}
                   </td>

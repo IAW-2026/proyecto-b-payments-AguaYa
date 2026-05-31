@@ -1,7 +1,10 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { prisma } from "@/app/lib/prisma";
-import { fetchRecentBuyerPayments, fetchRecentBuyerInvoices } from "@/app/lib/data";
+import {
+  fetchRecentBuyerPayments,
+  fetchRecentBuyerInvoices,
+} from "@/app/lib/data";
 import RecentPayments from "@/app/ui/shared/recent-payments";
 import RecentInvoices from "@/app/ui/shared/recent-invoices";
 
@@ -25,12 +28,9 @@ export default async function BuyerDashboardPage() {
     <div className="space-y-6">
       <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
 
-      <RecentPayments
-        payments={payments}
-        viewAllHref="/buyer/payments"
-      />
+      <RecentPayments payments={payments} viewAllHref="/buyer/payments" />
 
-      <RecentInvoices invoices={invoices} />
+      <RecentInvoices invoices={invoices} viewAllHref="/buyer/invoices" />
     </div>
   );
 }
