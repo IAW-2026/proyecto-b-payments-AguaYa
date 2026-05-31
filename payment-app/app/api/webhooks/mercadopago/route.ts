@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/app/lib/prisma";
 import { paymentClient } from "@/app/integrations/mercadopago";
 import { updatePaymentStatus } from "@/app/lib/payments/update-status";
+import { createInvoice } from "@/app/lib/invoices/create-invoice";
 import { notifyPaymentApproved } from "@/app/integrations/seller-app/notify-payment";
 
 // Recibe la notificación de Mercado Pago para actualizar el estado del payment en la base de datos.
@@ -64,8 +65,10 @@ export async function POST(request: Request) {
     // 5. Actualizar el estado del payment con el detalle confirmado por Mercado Pago.
     const { alreadyProcessed, newStatus } = await updatePaymentStatus(payment, mpPayment);
 
-    // 6. Si el payment quedó aprobado, notificamos a SellerApp.
+    // 6. Si el payment quedó aprobado, generamos la factura y notificamos a SellerApp.
     if (!alreadyProcessed && newStatus === "approved") {
+      await createInvoice(payment);
+
       try {
         await notifyPaymentApproved({
           orderId: payment.orderId,
