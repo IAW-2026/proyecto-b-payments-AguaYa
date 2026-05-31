@@ -1,7 +1,13 @@
 import Link from "next/link";
 import { RecentInvoice } from "@/app/lib/definitions";
 
-export default function InvoicesTable({ invoices }: { invoices: RecentInvoice[] }) {
+export default function InvoicesTable({
+  invoices,
+  role,
+}: {
+  invoices: RecentInvoice[];
+  role: "buyer" | "seller";
+}) {
   if (invoices.length === 0) {
     return (
       <p className="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
@@ -26,7 +32,7 @@ export default function InvoicesTable({ invoices }: { invoices: RecentInvoice[] 
           {invoices.map((invoice) => (
             <tr key={invoice.id} className="hover:bg-gray-50 transition-colors dark:hover:bg-gray-800">
               <td className="px-4 py-3 font-mono text-xs text-gray-600 dark:text-gray-400">
-                <Link href={`/buyer/invoices/${invoice.id}`} className="hover:underline">
+                <Link href={`/${role}/invoices/${invoice.id}`} className="hover:underline">
                   {invoice.payment.orderId}
                 </Link>
               </td>

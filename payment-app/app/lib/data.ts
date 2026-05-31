@@ -111,6 +111,7 @@ export async function fetchRecentBuyerPayments(buyerId: string, limit = 5) {
       amount: true,
       status: true,
       createdAt: true,
+      sellerName: true,
     },
   });
 }
@@ -126,6 +127,7 @@ export async function fetchRecentSellerPayments(sellerId: string, limit = 5) {
       amount: true,
       status: true,
       createdAt: true,
+      buyerName: true,
     },
   });
 }
@@ -217,24 +219,29 @@ export async function fetchBuyerInvoices(buyerId: string) {
   });
 }
 
+function paymentsFiltersWhere(
+  filters: { status?: PaymentStatus; from?: string; to?: string },
+) {
+  const { status, from, to } = filters;
+  return {
+    ...(status ? { status } : {}),
+    ...(from || to
+      ? {
+          createdAt: {
+            ...(from ? { gte: new Date(from) } : {}),
+            ...(to ? { lte: new Date(to + "T23:59:59.999Z") } : {}),
+          },
+        }
+      : {}),
+  };
+}
+
 export async function fetchBuyerPayments(
   buyerId: string,
   filters: { status?: PaymentStatus; from?: string; to?: string } = {},
 ) {
-  const { status, from, to } = filters;
   return prisma.payment.findMany({
-    where: {
-      buyerId,
-      ...(status ? { status } : {}),
-      ...(from || to
-        ? {
-            createdAt: {
-              ...(from ? { gte: new Date(from) } : {}),
-              ...(to ? { lte: new Date(to + "T23:59:59.999Z") } : {}),
-            },
-          }
-        : {}),
-    },
+    where: { buyerId, ...paymentsFiltersWhere(filters) },
     orderBy: { createdAt: "desc" },
     select: {
       id: true,
@@ -243,6 +250,26 @@ export async function fetchBuyerPayments(
       status: true,
       createdAt: true,
       mpPaymentMethod: true,
+      sellerName: true,
+    },
+  });
+}
+
+export async function fetchSellerPayments(
+  sellerId: string,
+  filters: { status?: PaymentStatus; from?: string; to?: string } = {},
+) {
+  return prisma.payment.findMany({
+    where: { sellerId, ...paymentsFiltersWhere(filters) },
+    orderBy: { createdAt: "desc" },
+    select: {
+      id: true,
+      orderId: true,
+      amount: true,
+      status: true,
+      createdAt: true,
+      mpPaymentMethod: true,
+      buyerName: true,
     },
   });
 }

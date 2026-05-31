@@ -3,7 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { lusitana } from "@/app/ui/fonts";
 import { prisma } from "@/app/lib/prisma";
-import { fetchBuyerPayments } from "@/app/lib/data";
+import { fetchSellerPayments } from "@/app/lib/data";
 import { PaymentStatus } from "@/app/lib/definitions";
 import PaymentsTable from "@/app/ui/shared/payments-table";
 import PaymentsFilters from "@/app/ui/shared/payments-filters";
@@ -22,7 +22,7 @@ const VALID_STATUSES: PaymentStatus[] = [
   "expired",
 ];
 
-export default async function BuyerPaymentsPage({
+export default async function SellerPaymentsPage({
   searchParams,
 }: {
   searchParams: SearchParams;
@@ -34,7 +34,7 @@ export default async function BuyerPaymentsPage({
     where: { clerkId: userId },
   });
 
-  if (!profile?.buyerId) redirect("/select-role");
+  if (!profile?.sellerId) redirect("/select-role");
 
   const params = await searchParams;
 
@@ -42,7 +42,7 @@ export default async function BuyerPaymentsPage({
     ? (params.status as PaymentStatus)
     : undefined;
 
-  const payments = await fetchBuyerPayments(profile.buyerId, {
+  const payments = await fetchSellerPayments(profile.sellerId, {
     status,
     from: params.from,
     to: params.to,
@@ -50,7 +50,9 @@ export default async function BuyerPaymentsPage({
 
   return (
     <main>
-      <h1 className={`${lusitana.className} mb-6 text-2xl font-bold md:text-3xl`}>
+      <h1
+        className={`${lusitana.className} mb-6 text-2xl font-bold md:text-3xl`}
+      >
         My Payments
       </h1>
 
