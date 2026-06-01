@@ -46,7 +46,7 @@ export default async function BuyerInvoicesPage({
       </Suspense>
 
       <div className="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900">
-        <InvoicesTable invoices={invoices} role="buyer" />
+        <InvoicesTable invoices={invoices} basePath="/buyer/invoices" />
         <Pagination page={page} totalPages={totalPages} searchParams={params} />
       </div>
     </main>

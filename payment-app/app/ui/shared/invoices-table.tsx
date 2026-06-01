@@ -3,10 +3,10 @@ import { RecentInvoice } from "@/app/lib/definitions";
 
 export default function InvoicesTable({
   invoices,
-  role,
+  basePath,
 }: {
   invoices: RecentInvoice[];
-  role: "buyer" | "seller";
+  basePath: string;
 }) {
   if (invoices.length === 0) {
     return (
@@ -32,7 +32,7 @@ export default function InvoicesTable({
           {invoices.map((invoice) => (
             <tr key={invoice.id} className="hover:bg-gray-50 transition-colors dark:hover:bg-gray-800">
               <td className="px-4 py-3 font-mono text-xs text-gray-600 dark:text-gray-400">
-                <Link href={`/${role}/invoices/${invoice.id}`} className="hover:underline">
+                <Link href={`${basePath}/${invoice.id}`} className="hover:underline">
                   {invoice.payment.orderId}
                 </Link>
               </td>

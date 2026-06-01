@@ -81,7 +81,7 @@ export default async function AdminUsersPage({
                       {user.profileNumber}
                     </td>
                     <td className="px-4 py-3 text-gray-700 dark:text-gray-300">
-                      {user.username}
+                      {user.userName ?? "—"}
                     </td>
                     <td className="px-4 py-3 font-mono text-xs text-gray-500 dark:text-gray-400">
                       {user.clerkId}
