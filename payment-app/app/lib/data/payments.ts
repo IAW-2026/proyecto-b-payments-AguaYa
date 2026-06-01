@@ -189,6 +189,75 @@ export async function countSellerPayments(
   });
 }
 
+export async function fetchSellerStats(sellerId: string) {
+  const [byStatus, revenueResult] = await Promise.all([
+    prisma.payment.groupBy({
+      by: ["status"],
+      where: { sellerId },
+      _count: { _all: true },
+    }),
+    prisma.payment.aggregate({
+      where: { sellerId, status: "approved" },
+      _sum: { amount: true },
+    }),
+  ]);
+
+  const counts = Object.fromEntries(
+    byStatus.map((r) => [r.status, r._count._all]),
+  ) as Partial<Record<PaymentStatus, number>>;
+
+  return {
+    total: byStatus.reduce((acc, r) => acc + r._count._all, 0),
+    approved: counts.approved ?? 0,
+    pending: counts.pending ?? 0,
+    rejected: counts.rejected ?? 0,
+    cancelled: counts.cancelled ?? 0,
+    expired: counts.expired ?? 0,
+    revenue: revenueResult._sum.amount ?? 0,
+  };
+}
+
+export async function fetchSellerMonthlyRevenue(sellerId: string) {
+  const rows = await prisma.$queryRaw<{ month: string; revenue: bigint }[]>`
+    SELECT
+      TO_CHAR(DATE_TRUNC('month', "createdAt"), 'YYYY-MM') AS month,
+      COALESCE(SUM(amount), 0) AS revenue
+    FROM "Payment"
+    WHERE "sellerId" = ${sellerId}
+      AND status::text = 'approved'
+      AND "createdAt" >= NOW() - INTERVAL '12 months'
+    GROUP BY DATE_TRUNC('month', "createdAt")
+    ORDER BY DATE_TRUNC('month', "createdAt") ASC
+  `;
+  return rows.map((r) => ({ month: r.month, revenue: Number(r.revenue) }));
+}
+
+export async function fetchSellerTopProducts(sellerId: string) {
+  const rows = await prisma.$queryRaw<
+    { productName: string; total_units: number; total_revenue: number }[]
+  >`
+    SELECT
+      pis."productName",
+      SUM(pis.quantity)::int AS total_units,
+      SUM(pis.subtotal)::int  AS total_revenue
+    FROM "PaymentItemSnapshot" pis
+    JOIN "Payment" p ON p.id = pis."paymentId"
+    WHERE p."sellerId" = ${sellerId}
+      AND p.status::text = 'approved'
+    GROUP BY pis."productName"
+  `;
+
+  if (rows.length === 0) return { mostSold: null, topRevenue: null };
+
+  const mostSold = rows.reduce((a, b) => (a.total_units > b.total_units ? a : b));
+  const topRevenue = rows.reduce((a, b) => (a.total_revenue > b.total_revenue ? a : b));
+
+  return {
+    mostSold: { name: mostSold.productName, units: Number(mostSold.total_units) },
+    topRevenue: { name: topRevenue.productName, amount: Number(topRevenue.total_revenue) },
+  };
+}
+
 export async function fetchMonthlyRevenue() {
   const rows = await prisma.$queryRaw<{ month: string; revenue: bigint }[]>`
     SELECT
