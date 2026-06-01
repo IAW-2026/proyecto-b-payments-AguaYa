@@ -1,14 +1,28 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { ShoppingBagIcon, BuildingStorefrontIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { resolveExternalProfile } from "@/app/lib/data";
 
 export default async function SelectRolePage() {
-  const { userId } = await auth();
+  const { userId, sessionClaims } = await auth();
   if (!userId) redirect("/sign-in");
 
-  const profile = await resolveExternalProfile(userId);
+  if (sessionClaims?.metadata?.role === "admin_payments") {
+    redirect("/admin/dashboard");
+  }
+
+  const clerkUser = await currentUser();
+  const name =
+    clerkUser?.fullName ??
+    clerkUser?.primaryEmailAddress?.emailAddress ??
+    userId;
+
+  const profile = await resolveExternalProfile(userId, name);
+
+  if (profile.status === "DELETED" || profile.status === "SUSPENDED") {
+    redirect("/no-account");
+  }
 
   const hasBuyer  = !!profile.buyerId;
   const hasSeller = !!profile.sellerId;

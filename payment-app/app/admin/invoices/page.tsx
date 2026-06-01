@@ -1,36 +1,29 @@
 import { Suspense } from "react";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { prisma } from "@/app/lib/prisma";
 import { lusitana } from "@/app/ui/fonts";
-import { fetchBuyerInvoicesPaged, countBuyerInvoices, PAGE_SIZE } from "@/app/lib/data";
+import { fetchAllInvoices, countAllInvoices, PAGE_SIZE } from "@/app/lib/data";
 import InvoicesTable from "@/app/ui/shared/invoices-table";
-import Pagination from "@/app/ui/shared/pagination";
 import SearchInput from "@/app/ui/shared/search-input";
+import Pagination from "@/app/ui/shared/pagination";
 
-type SearchParams = Promise<{ page?: string; query?: string }>;
+type SearchParams = Promise<{ query?: string; page?: string }>;
 
-export default async function BuyerInvoicesPage({
+export default async function AdminInvoicesPage({
   searchParams,
 }: {
   searchParams: SearchParams;
 }) {
-  const { userId } = await auth();
-  if (!userId) redirect("/sign-in");
-
-  const profile = await prisma.externalProfile.findUnique({
-    where: { clerkId: userId },
-  });
-
-  if (!profile?.buyerId) redirect("/select-role");
+  const { sessionClaims } = await auth();
+  if (sessionClaims?.metadata?.role !== "admin_payments") redirect("/sign-in");
 
   const params = await searchParams;
   const page = Math.max(1, parseInt(params.page ?? "1", 10) || 1);
   const query = params.query;
 
   const [invoices, total] = await Promise.all([
-    fetchBuyerInvoicesPaged(profile.buyerId, page, query),
-    countBuyerInvoices(profile.buyerId, query),
+    fetchAllInvoices(query, page),
+    countAllInvoices(query),
   ]);
 
   const totalPages = Math.ceil(total / PAGE_SIZE);
@@ -38,7 +31,7 @@ export default async function BuyerInvoicesPage({
   return (
     <main>
       <h1 className={`${lusitana.className} mb-6 text-2xl font-bold md:text-3xl`}>
-        My Invoices
+        Invoices
       </h1>
 
       <Suspense>
@@ -46,7 +39,7 @@ export default async function BuyerInvoicesPage({
       </Suspense>
 
       <div className="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900">
-        <InvoicesTable invoices={invoices} basePath="/buyer/invoices" />
+        <InvoicesTable invoices={invoices} basePath="/admin/invoices" />
         <Pagination page={page} totalPages={totalPages} searchParams={params} />
       </div>
     </main>
