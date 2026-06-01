@@ -15,8 +15,8 @@ import {
   ShoppingBagIcon,
   CurrencyDollarIcon,
 } from "@heroicons/react/24/outline";
-import RevenueChart from "@/app/ui/admin/revenue-chart";
-import StatusChart from "@/app/ui/admin/status-chart";
+import RevenueChart from "@/app/ui/shared/revenue-chart";
+import StatusChart from "@/app/ui/shared/status-chart";
 
 export default async function SellerDashboardPage() {
   const { userId } = await auth();
