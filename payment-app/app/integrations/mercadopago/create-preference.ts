@@ -31,11 +31,15 @@ export async function createMercadoPagoPreference({
 
       notification_url: process.env.MP_WEBHOOK_URL,
 
-      /*back_urls: {
-        success: "http://localhost:3000/payments/success",
-        failure: "http://localhost:3000/payments/failure",
-        pending: "http://localhost:3000/payments/pending",
-      },*/
+      // TODO: las back_urls deben apuntar a la buyer app.
+      // Una vez integradas las apps, reemplazar BUYER_APP_URL
+      // con la URL real de la buyer app.
+      // back_urls: {
+      //   success: `${process.env.BUYER_APP_URL}/payments/success`,
+      //   failure: `${process.env.BUYER_APP_URL}/payments/failure`,
+      //   pending: `${process.env.BUYER_APP_URL}/payments/pending`,
+      // },
+      // auto_return: "approved",
     },
   });
   return response;
