@@ -1,14 +1,15 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { prisma } from "@/app/lib/prisma";
+import { getRole } from "@/app/lib/get-role";
 import BuyerDashboard from "./buyer-view";
 import SellerDashboard from "./seller-view";
 
 export default async function DashboardPage() {
-  const { userId, sessionClaims } = await auth();
+  const { userId } = await auth();
   if (!userId) redirect("/sign-in");
 
-  const role = sessionClaims?.public_metadata?.lastRole;
+  const role = await getRole();
   if (!role) redirect("/select-role");
 
   const profile = await prisma.externalProfile.findUnique({

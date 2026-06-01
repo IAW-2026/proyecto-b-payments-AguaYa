@@ -3,6 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { lusitana } from "@/app/ui/fonts";
 import { prisma } from "@/app/lib/prisma";
+import { getRole } from "@/app/lib/get-role";
 import {
   fetchBuyerPayments, countBuyerPayments,
   fetchSellerPayments, countSellerPayments,
@@ -30,10 +31,10 @@ export default async function PaymentsPage({
 }: {
   searchParams: SearchParams;
 }) {
-  const { userId, sessionClaims } = await auth();
+  const { userId } = await auth();
   if (!userId) redirect("/sign-in");
 
-  const role = sessionClaims?.public_metadata?.lastRole;
+  const role = await getRole();
   if (!role) redirect("/select-role");
 
   const profile = await prisma.externalProfile.findUnique({
