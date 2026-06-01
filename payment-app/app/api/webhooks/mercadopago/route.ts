@@ -4,7 +4,7 @@ import { prisma } from "@/app/lib/prisma";
 import { paymentClient } from "@/app/integrations/mercadopago";
 import { updatePaymentStatus } from "@/app/lib/payments/update-status";
 import { createInvoice } from "@/app/lib/invoices/create-invoice";
-import { notifyPaymentApproved } from "@/app/integrations/seller-app/notify-payment";
+import { notifyPaymentApproved } from "@/app/integrations/notify-payment";
 
 // Recibe la notificación de Mercado Pago para actualizar el estado del payment en la base de datos.
 // estructura del request que envía Mercado Pago al webhook:
@@ -65,21 +65,16 @@ export async function POST(request: Request) {
     // 5. Actualizar el estado del payment con el detalle confirmado por Mercado Pago.
     const { alreadyProcessed, newStatus } = await updatePaymentStatus(payment, mpPayment);
 
-    // 6. Si el payment quedó aprobado, generamos la factura y notificamos a SellerApp.
+    // 6. Si el payment quedó aprobado, generamos la factura y notificamos a SellerApp y BuyerApp.
     if (!alreadyProcessed && newStatus === "approved") {
       await createInvoice(payment, mpPayment.date_approved ?? undefined);
 
-      try {
-        await notifyPaymentApproved({
-          orderId: payment.orderId,
-          transactionId: payment.id,
-          amount: payment.amount,
-        });
-        console.log(`📦 SellerApp notificada para la orden ${payment.orderId}.`);
-      } catch (error) {
-        // No fallamos el webhook si seller no responde — MP ya recibió su 200.
-        console.error(`❌ Error al notificar a SellerApp:`, error);
-      }
+      await notifyPaymentApproved({
+        orderId: payment.orderId,
+        transactionId: payment.id,
+        amount: payment.amount,
+        buyerId: payment.buyerId,
+      });
     }
 
     return NextResponse.json({ success: true, alreadyProcessed });
