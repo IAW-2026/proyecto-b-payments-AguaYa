@@ -1,6 +1,3 @@
-import { auth } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
-import { prisma } from "@/app/lib/prisma";
 import { lusitana } from "@/app/ui/fonts";
 import {
   fetchSellerStats,
@@ -15,31 +12,22 @@ import {
   ShoppingBagIcon,
   CurrencyDollarIcon,
 } from "@heroicons/react/24/outline";
-import RevenueChart from "@/app/ui/admin/revenue-chart";
-import StatusChart from "@/app/ui/admin/status-chart";
+import RevenueChart from "@/app/ui/shared/revenue-chart";
+import StatusChart from "@/app/ui/shared/status-chart";
 
-export default async function SellerDashboardPage() {
-  const { userId } = await auth();
-  if (!userId) redirect("/sign-in");
-
-  const profile = await prisma.externalProfile.findUnique({
-    where: { clerkId: userId },
-  });
-
-  if (!profile?.sellerId) redirect("/select-role");
-
+export default async function SellerDashboard({ sellerId }: { sellerId: string }) {
   const [stats, monthlyRevenue, topProducts] = await Promise.all([
-    fetchSellerStats(profile.sellerId),
-    fetchSellerMonthlyRevenue(profile.sellerId),
-    fetchSellerTopProducts(profile.sellerId),
+    fetchSellerStats(sellerId),
+    fetchSellerMonthlyRevenue(sellerId),
+    fetchSellerTopProducts(sellerId),
   ]);
 
   const statusChartData = [
-    { name: "Aprobadas", value: stats.approved, fill: "#22c55e" },
-    { name: "Pendientes", value: stats.pending, fill: "#eab308" },
-    { name: "Rechazadas", value: stats.rejected, fill: "#ef4444" },
+    { name: "Aprobadas",  value: stats.approved,  fill: "#22c55e" },
+    { name: "Pendientes", value: stats.pending,   fill: "#eab308" },
+    { name: "Rechazadas", value: stats.rejected,  fill: "#ef4444" },
     { name: "Canceladas", value: stats.cancelled, fill: "#6b7280" },
-    { name: "Expiradas", value: stats.expired, fill: "#f97316" },
+    { name: "Expiradas",  value: stats.expired,   fill: "#f97316" },
   ];
 
   return (
@@ -48,7 +36,6 @@ export default async function SellerDashboardPage() {
         Dashboard
       </h1>
 
-      {/* Resumen */}
       <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
         Resumen
       </h2>
@@ -91,7 +78,6 @@ export default async function SellerDashboardPage() {
         />
       </div>
 
-      {/* Productos */}
       <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
         Productos
       </h2>
@@ -114,7 +100,6 @@ export default async function SellerDashboardPage() {
         />
       </div>
 
-      {/* Gráficos */}
       <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
         Gráficos
       </h2>

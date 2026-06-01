@@ -1,5 +1,5 @@
 import SettingsPanel from "@/app/ui/shared/settings-panel";
 
-export default function SellerSettingsPage() {
+export default function SettingsPage() {
   return <SettingsPanel />;
 }

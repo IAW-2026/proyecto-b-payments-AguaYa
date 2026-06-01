@@ -7,7 +7,7 @@ import { revalidatePath } from "next/cache";
 
 async function requireAdmin() {
   const { sessionClaims, userId } = await auth();
-  if (sessionClaims?.metadata?.role !== "admin_payments") redirect("/sign-in");
+  if (!sessionClaims?.public_metadata?.roles?.includes("admin_payments")) redirect("/sign-in");
   return userId!;
 }
 

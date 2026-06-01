@@ -26,7 +26,7 @@ export default async function AdminUserDetailPage({
   searchParams,
 }: Props) {
   const { sessionClaims } = await auth();
-  if (sessionClaims?.metadata?.role !== "admin_payments") redirect("/sign-in");
+  if (!sessionClaims?.public_metadata?.roles?.includes("admin_payments")) redirect("/sign-in");
 
   const { profileId } = await params;
   const { action } = await searchParams;

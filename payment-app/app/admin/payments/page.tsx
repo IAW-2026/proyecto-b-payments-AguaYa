@@ -26,7 +26,7 @@ export default async function AdminPaymentsPage({
   searchParams: SearchParams;
 }) {
   const { sessionClaims } = await auth();
-  if (sessionClaims?.metadata?.role !== "admin_payments") redirect("/sign-in");
+  if (!sessionClaims?.public_metadata?.roles?.includes("admin_payments")) redirect("/sign-in");
 
   const params = await searchParams;
   const status = VALID_STATUSES.includes(params.status as PaymentStatus)

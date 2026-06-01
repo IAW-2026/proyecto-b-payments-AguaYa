@@ -17,7 +17,7 @@ const isAdminRoute = createRouteMatcher(["/admin(.*)"]);
 export default clerkMiddleware(async (auth, req) => {
   if (isAdminRoute(req)) {
     const { sessionClaims } = await auth();
-    if (sessionClaims?.metadata?.role !== "admin_payments") {
+    if (!sessionClaims?.public_metadata?.roles?.includes("admin_payments")) {
       const signInUrl = new URL("/sign-in", req.url);
       return NextResponse.redirect(signInUrl);
     }

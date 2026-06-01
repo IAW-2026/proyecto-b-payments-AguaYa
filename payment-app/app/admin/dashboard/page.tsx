@@ -18,12 +18,12 @@ import {
   NoSymbolIcon,
   TrashIcon,
 } from "@heroicons/react/24/outline";
-import RevenueChart from "@/app/ui/admin/revenue-chart";
-import StatusChart from "@/app/ui/admin/status-chart";
+import RevenueChart from "@/app/ui/shared/revenue-chart";
+import StatusChart from "@/app/ui/shared/status-chart";
 
 export default async function AdminDashboardPage() {
   const { sessionClaims } = await auth();
-  if (sessionClaims?.metadata?.role !== "admin_payments") redirect("/sign-in");
+  if (!sessionClaims?.public_metadata?.roles?.includes("admin_payments")) redirect("/sign-in");
 
   const [paymentStats, userStats, monthlyRevenue, totalInvoices] =
     await Promise.all([
