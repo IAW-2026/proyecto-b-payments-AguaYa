@@ -40,7 +40,7 @@ async function fetchExternalId(
  * - Nunca sobreescribe un ID ya resuelto con null (evita borrar un ID
  *   válido si una app externa está temporalmente caída).
  */
-export async function resolveExternalProfile(clerkId: string) {
+export async function resolveExternalProfile(clerkId: string, username: string) {
   // Mock para desarrollo: usar IDs falsos y persistirlos en la DB para que
   // los dashboards (que leen la DB directamente) también funcionen.
   const mockBuyerId = process.env.MOCK_BUYER_ID;
@@ -48,7 +48,8 @@ export async function resolveExternalProfile(clerkId: string) {
   if (mockBuyerId || mockSellerId) {
     return prisma.externalProfile.upsert({
       where: { clerkId },
-      create: { clerkId, buyerId: mockBuyerId ?? null, sellerId: mockSellerId ?? null },
+      create: { clerkId, username, buyerId: mockBuyerId ?? null, sellerId: mockSellerId ?? null },
+      // No sobreescribir username ni status si el perfil ya existe
       update: { buyerId: mockBuyerId ?? null, sellerId: mockSellerId ?? null },
     });
   }
@@ -60,8 +61,6 @@ export async function resolveExternalProfile(clerkId: string) {
   // Camino rápido: ambos IDs ya están resueltos
   if (existing?.buyerId && existing?.sellerId) return existing;
 
-  // Consultar solo las apps que todavía no tienen ID resuelto.
-  // allSettled garantiza que un fallo en una no cancela la otra.
   const [buyerResult, sellerResult] = await Promise.allSettled([
     existing?.buyerId
       ? Promise.resolve(existing.buyerId)
@@ -75,10 +74,10 @@ export async function resolveExternalProfile(clerkId: string) {
   const sellerId =
     sellerResult.status === "fulfilled" ? sellerResult.value : null;
 
-  // Crear o actualizar (upsert) — solo actualiza campos que pasaron de null a valor
+  // Nunca sobreescribe username ni status de un perfil existente.
   return prisma.externalProfile.upsert({
     where: { clerkId },
-    create: { clerkId, buyerId, sellerId },
+    create: { clerkId, username, buyerId, sellerId },
     update: {
       ...(!existing?.buyerId && buyerId ? { buyerId } : {}),
       ...(!existing?.sellerId && sellerId ? { sellerId } : {}),
@@ -264,6 +263,93 @@ export async function fetchSellerInvoices(sellerId: string) {
 }
 
 export const PAGE_SIZE = 10;
+
+// ---------------------------------------------------------------------------
+// Admin
+// ---------------------------------------------------------------------------
+
+export async function fetchPaymentStats() {
+  const [byStatus, revenueResult] = await Promise.all([
+    prisma.payment.groupBy({
+      by: ["status"],
+      _count: { _all: true },
+    }),
+    prisma.payment.aggregate({
+      where: { status: "approved" },
+      _sum: { amount: true },
+      _count: { _all: true },
+    }),
+  ]);
+
+  const counts = Object.fromEntries(
+    byStatus.map((row) => [row.status, row._count._all]),
+  ) as Partial<Record<PaymentStatus, number>>;
+
+  return {
+    total: byStatus.reduce((acc, r) => acc + r._count._all, 0),
+    approved: counts.approved ?? 0,
+    pending: counts.pending ?? 0,
+    rejected: counts.rejected ?? 0,
+    cancelled: counts.cancelled ?? 0,
+    expired: counts.expired ?? 0,
+    revenue: revenueResult._sum.amount ?? 0,
+  };
+}
+
+export async function fetchAllPayments(
+  filters: PaymentsFilters = {},
+) {
+  const { page = 1, ...rest } = filters;
+  return prisma.payment.findMany({
+    where: paymentsFiltersWhere(rest),
+    orderBy: { createdAt: "desc" },
+    skip: (page - 1) * PAGE_SIZE,
+    take: PAGE_SIZE,
+    select: {
+      id: true,
+      orderId: true,
+      amount: true,
+      status: true,
+      createdAt: true,
+      mpPaymentMethod: true,
+      buyerName: true,
+      sellerName: true,
+    },
+  });
+}
+
+export async function countAllPayments(
+  filters: Omit<PaymentsFilters, "page"> = {},
+) {
+  return prisma.payment.count({ where: paymentsFiltersWhere(filters) });
+}
+
+function usersSearchWhere(query?: string) {
+  if (!query) return {};
+  const profileNumber = parseInt(query, 10);
+  return {
+    OR: [
+      ...(!isNaN(profileNumber) ? [{ profileNumber }] : []),
+      { username: { contains: query, mode: "insensitive" as const } },
+      { clerkId: { contains: query, mode: "insensitive" as const } },
+      { buyerId: { contains: query, mode: "insensitive" as const } },
+      { sellerId: { contains: query, mode: "insensitive" as const } },
+    ],
+  };
+}
+
+export async function fetchAllUsers(query?: string, page = 1) {
+  return prisma.externalProfile.findMany({
+    where: usersSearchWhere(query),
+    orderBy: { profileNumber: "asc" },
+    skip: (page - 1) * PAGE_SIZE,
+    take: PAGE_SIZE,
+  });
+}
+
+export async function countAllUsers(query?: string) {
+  return prisma.externalProfile.count({ where: usersSearchWhere(query) });
+}
 
 type PaymentsFilters = {
   status?: PaymentStatus;

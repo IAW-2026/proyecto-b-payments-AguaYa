@@ -3,6 +3,7 @@
 import {
   HomeIcon,
   CreditCardIcon,
+  DocumentTextIcon,
   UsersIcon,
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
@@ -12,6 +13,7 @@ import clsx from "clsx";
 const links = [
   { name: "Dashboard", href: "/admin/dashboard", icon: HomeIcon },
   { name: "Payments",  href: "/admin/payments",  icon: CreditCardIcon },
+  { name: "Invoices",  href: "/admin/invoices",  icon: DocumentTextIcon },
   { name: "Usuarios",  href: "/admin/users",      icon: UsersIcon },
 ];
 
