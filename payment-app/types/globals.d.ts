@@ -2,8 +2,10 @@ export {};
 
 declare global {
   interface CustomJwtSessionClaims {
-    metadata?: {
-      role?: string;
+    public_metadata?: {
+      roles?: string[];
+      lastRole?: "buyer" | "seller";
     };
   }
+
 }

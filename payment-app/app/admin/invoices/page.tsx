@@ -15,7 +15,7 @@ export default async function AdminInvoicesPage({
   searchParams: SearchParams;
 }) {
   const { sessionClaims } = await auth();
-  if (sessionClaims?.metadata?.role !== "admin_payments") redirect("/sign-in");
+  if (!sessionClaims?.public_metadata?.roles?.includes("admin_payments")) redirect("/sign-in");
 
   const params = await searchParams;
   const page = Math.max(1, parseInt(params.page ?? "1", 10) || 1);
