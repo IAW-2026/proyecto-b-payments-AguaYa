@@ -10,7 +10,7 @@ export default async function BuyerDashboard({ buyerId }: { buyerId: string }) {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
+      <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">Dashboard</h1>
       <RecentPayments payments={payments} viewAllHref="/payments" />
       <RecentInvoices invoices={invoices} viewAllHref="/invoices" />
     </div>

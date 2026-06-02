@@ -1,4 +1,7 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
+
+export const metadata: Metadata = { title: "Payments" };
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { lusitana } from "@/app/ui/fonts";

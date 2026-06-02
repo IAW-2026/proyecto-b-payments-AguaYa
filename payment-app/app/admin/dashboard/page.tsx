@@ -1,4 +1,7 @@
-﻿import { lusitana } from "@/app/ui/fonts";
+﻿import type { Metadata } from "next";
+import { lusitana } from "@/app/ui/fonts";
+
+export const metadata: Metadata = { title: "Dashboard" };
 import {
   fetchPaymentStats,
   fetchMonthlyRevenue,
@@ -44,7 +47,7 @@ export default async function AdminDashboardPage() {
       </h1>
 
       {/* Pagos */}
-      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-300">
         Pagos
       </h2>
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -92,7 +95,7 @@ export default async function AdminDashboardPage() {
       </div>
 
       {/* Usuarios */}
-      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-300">
         Usuarios
       </h2>
       <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
@@ -119,7 +122,7 @@ export default async function AdminDashboardPage() {
       </div>
 
       {/* Gráficos */}
-      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-300">
         Gráficos
       </h2>
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">

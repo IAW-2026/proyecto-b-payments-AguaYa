@@ -1,5 +1,8 @@
-﻿import { Suspense } from "react";
+﻿import type { Metadata } from "next";
+import { Suspense } from "react";
 import { lusitana } from "@/app/ui/fonts";
+
+export const metadata: Metadata = { title: "Usuarios" };
 import { fetchAllUsers, countAllUsers, PAGE_SIZE } from "@/app/lib/data";
 import SearchInput from "@/app/ui/shared/search-input";
 import Pagination from "@/app/ui/shared/pagination";
@@ -56,14 +59,14 @@ export default async function AdminUsersPage({
             <table className="min-w-full text-sm">
               <thead>
                 <tr className="bg-gray-50 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:bg-gray-800 dark:text-gray-400">
-                  <th className="px-4 py-3">#</th>
-                  <th className="px-4 py-3">Username</th>
-                  <th className="px-4 py-3">Clerk ID</th>
-                  <th className="px-4 py-3">Buyer ID</th>
-                  <th className="px-4 py-3">Seller ID</th>
-                  <th className="px-4 py-3">Estado</th>
-                  <th className="px-4 py-3">Creado</th>
-                  <th className="px-4 py-3"></th>
+                  <th scope="col" className="px-4 py-3">#</th>
+                  <th scope="col" className="px-4 py-3">Username</th>
+                  <th scope="col" className="px-4 py-3">Clerk ID</th>
+                  <th scope="col" className="px-4 py-3">Buyer ID</th>
+                  <th scope="col" className="px-4 py-3">Seller ID</th>
+                  <th scope="col" className="px-4 py-3">Estado</th>
+                  <th scope="col" className="px-4 py-3">Creado</th>
+                  <th scope="col" className="px-4 py-3"><span className="sr-only">Acciones</span></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
@@ -75,17 +78,17 @@ export default async function AdminUsersPage({
                     <td className="px-4 py-3 font-mono text-xs font-semibold text-gray-700 dark:text-gray-300">
                       {user.profileNumber}
                     </td>
-                    <td className="px-4 py-3 text-gray-700 dark:text-gray-300">
-                      {user.userName ?? "â€”"}
+                    <td className=”px-4 py-3 text-gray-700 dark:text-gray-300”>
+                      {user.userName ?? <span className=”text-gray-400 italic”>Sin nombre</span>}
                     </td>
-                    <td className="px-4 py-3 font-mono text-xs text-gray-500 dark:text-gray-400">
+                    <td className=”px-4 py-3 font-mono text-xs text-gray-500 dark:text-gray-400”>
                       {user.clerkId}
                     </td>
-                    <td className="px-4 py-3 font-mono text-xs text-gray-500 dark:text-gray-400">
-                      {user.buyerId ?? "â€”"}
+                    <td className=”px-4 py-3 font-mono text-xs text-gray-500 dark:text-gray-400”>
+                      {user.buyerId ?? <span className=”font-sans italic text-gray-400”>Sin registro</span>}
                     </td>
-                    <td className="px-4 py-3 font-mono text-xs text-gray-500 dark:text-gray-400">
-                      {user.sellerId ?? "â€”"}
+                    <td className=”px-4 py-3 font-mono text-xs text-gray-500 dark:text-gray-400”>
+                      {user.sellerId ?? <span className=”font-sans italic text-gray-400”>Sin registro</span>}
                     </td>
                     <td className="px-4 py-3">
                       <span
@@ -107,6 +110,7 @@ export default async function AdminUsersPage({
                     <td className="px-4 py-3">
                       <Link
                         href={`/admin/users/${user.id}`}
+                        aria-label={`Ver perfil de ${user.userName ?? user.clerkId}`}
                         className="rounded-md px-3 py-1.5 text-xs font-medium text-blue-600 border border-blue-200 hover:bg-blue-50 transition-colors dark:border-blue-800 dark:hover:bg-blue-950 dark:text-blue-400"
                       >
                         Ver

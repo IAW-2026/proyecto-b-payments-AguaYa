@@ -1,4 +1,7 @@
-﻿import { auth, currentUser } from "@clerk/nextjs/server";
+﻿import type { Metadata } from "next";
+import { auth, currentUser } from "@clerk/nextjs/server";
+
+export const metadata: Metadata = { title: "Seleccionar rol" };
 import { redirect } from "next/navigation";
 import {
   ShoppingBagIcon,
@@ -36,7 +39,7 @@ export default async function SelectRolePage() {
   const selectSeller = selectRole.bind(null, "seller");
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50">
+    <main className="flex min-h-screen items-center justify-center bg-gray-50">
       <div className="text-center">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
           ¿Cómo quieres usar AguaYa?
@@ -55,7 +58,7 @@ export default async function SelectRolePage() {
                 <span className="text-lg font-semibold text-gray-800">
                   Comprador
                 </span>
-                <span className="text-sm text-gray-400">
+                <span className="text-sm text-gray-600">
                   Realiza pagos y gestiona tus compras
                 </span>
               </button>
@@ -66,7 +69,7 @@ export default async function SelectRolePage() {
               <span className="text-lg font-semibold text-gray-500">
                 Comprador
               </span>
-              <span className="text-sm text-gray-400">
+              <span className="text-sm text-gray-600">
                 No tenés acceso como comprador
               </span>
             </div>
@@ -83,7 +86,7 @@ export default async function SelectRolePage() {
                 <span className="text-lg font-semibold text-gray-800">
                   Vendedor
                 </span>
-                <span className="text-sm text-gray-400">
+                <span className="text-sm text-gray-600">
                   Gestiona cobros, clientes y reportes
                 </span>
               </button>
@@ -94,13 +97,13 @@ export default async function SelectRolePage() {
               <span className="text-lg font-semibold text-gray-500">
                 Vendedor
               </span>
-              <span className="text-sm text-gray-400">
+              <span className="text-sm text-gray-600">
                 No tenés acceso como vendedor
               </span>
             </div>
           )}
         </div>
       </div>
-    </div>
+    </main>
   );
 }

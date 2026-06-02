@@ -12,7 +12,7 @@ export default function SideNavAdmin() {
       >
         <div>
           <p className="text-white text-xl font-semibold">AguaYa</p>
-          <p className="text-red-200 text-xs font-medium">Admin</p>
+          <p className="text-white text-xs font-medium">Admin</p>
         </div>
       </Link>
       <div className="flex grow flex-row justify-between space-x-2 md:flex-col md:space-x-0 md:space-y-2">

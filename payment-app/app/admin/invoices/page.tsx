@@ -1,5 +1,8 @@
-﻿import { Suspense } from "react";
+﻿import type { Metadata } from "next";
+import { Suspense } from "react";
 import { lusitana } from "@/app/ui/fonts";
+
+export const metadata: Metadata = { title: "Invoices" };
 import { fetchAllInvoices, countAllInvoices, PAGE_SIZE } from "@/app/lib/data";
 import InvoicesTable from "@/app/ui/shared/invoices-table";
 import SearchInput from "@/app/ui/shared/search-input";

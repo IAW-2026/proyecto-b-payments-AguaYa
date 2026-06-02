@@ -19,7 +19,7 @@ export default async function Home() {
       <header className="flex items-center justify-between px-8 py-5 border-b border-gray-100">
         <div className={`${lusitana.className} flex items-center gap-2 text-blue-600`}>
           <span className="text-2xl font-bold">AguaYa</span>
-          <span className="text-sm font-normal text-gray-400 mt-1">Pagos</span>
+          <span className="text-sm font-normal text-gray-600 mt-1">Pagos</span>
         </div>
         <Link
           href="/sign-in"

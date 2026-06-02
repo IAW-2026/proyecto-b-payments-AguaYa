@@ -28,7 +28,9 @@ export default function SettingsPanel({
 
   return (
     <div className="max-w-md space-y-8">
-      <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Configuración</h1>
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+        Configuración
+      </h1>
 
       {/* Perfil */}
       <section className="space-y-4">
@@ -53,13 +55,18 @@ export default function SettingsPanel({
 
         <div className="flex items-center justify-between rounded-md border border-gray-200 bg-gray-50 px-4 py-3 dark:border-gray-700 dark:bg-gray-800">
           <div>
-            <p className="text-xs text-gray-500 dark:text-gray-400">ID público</p>
-            <p className="mt-0.5 font-mono text-sm text-gray-700 dark:text-gray-300">#{profileNumber}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              ID público
+            </p>
+            <p className="mt-0.5 font-mono text-sm text-gray-700 dark:text-gray-300">
+              #{profileNumber}
+            </p>
           </div>
           <button
             type="button"
             onClick={copyId}
             title="Copiar ID"
+            aria-label="Copiar ID"
             className="text-gray-400 hover:text-blue-500 transition-colors"
           >
             <ClipboardDocumentIcon className="w-5" />
@@ -87,11 +94,17 @@ export default function SettingsPanel({
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
           className="flex w-full items-center gap-3 rounded-md border border-gray-200 bg-white p-4 text-left text-sm font-medium text-gray-700 hover:border-blue-500 hover:text-blue-600 transition-colors dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:border-blue-400"
         >
-          {theme === "dark" ? <SunIcon className="w-6" /> : <MoonIcon className="w-6" />}
-          <span className="grow">{theme === "dark" ? "Modo claro" : "Modo oscuro"}</span>
+          {theme === "dark" ? (
+            <SunIcon className="w-6" />
+          ) : (
+            <MoonIcon className="w-6" />
+          )}
+          <span className="grow">
+            {theme === "dark" ? "Modo claro" : "Modo oscuro"}
+          </span>
         </button>
 
-        <ConfirmLogout triggerClassName="flex w-full items-center gap-3 rounded-md border border-gray-200 bg-white p-4 text-left text-sm font-medium text-red-600 hover:border-red-500 hover:bg-red-50 transition-colors dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-red-950" />
+        <ConfirmLogout triggerClassName="flex w-full items-center gap-3 rounded-md border border-red-600 bg-red-600 p-4 text-left text-sm font-medium text-white hover:border-red-700 hover:bg-red-700 transition-colors dark:border-red-500 dark:bg-red-600 dark:text-white dark:hover:bg-red-700" />
       </section>
     </div>
   );

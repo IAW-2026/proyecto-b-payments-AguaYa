@@ -1,5 +1,8 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+
+export const metadata: Metadata = { title: "Perfil de usuario" };
 import { lusitana } from "@/app/ui/fonts";
 import { prisma } from "@/app/lib/prisma";
 import { suspendUser, restoreUser, deleteUser } from "../actions";
