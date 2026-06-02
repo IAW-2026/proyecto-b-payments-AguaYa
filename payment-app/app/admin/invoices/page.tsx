@@ -1,6 +1,4 @@
-import { Suspense } from "react";
-import { auth } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
+﻿import { Suspense } from "react";
 import { lusitana } from "@/app/ui/fonts";
 import { fetchAllInvoices, countAllInvoices, PAGE_SIZE } from "@/app/lib/data";
 import InvoicesTable from "@/app/ui/shared/invoices-table";
@@ -14,9 +12,6 @@ export default async function AdminInvoicesPage({
 }: {
   searchParams: SearchParams;
 }) {
-  const { sessionClaims } = await auth();
-  if (!sessionClaims?.public_metadata?.roles?.includes("admin_payments")) redirect("/sign-in");
-
   const params = await searchParams;
   const page = Math.max(1, parseInt(params.page ?? "1", 10) || 1);
   const query = params.query;

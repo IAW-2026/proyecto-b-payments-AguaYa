@@ -1,13 +1,12 @@
 "use client";
 
 import {
-  ArrowRightOnRectangleIcon,
   ArrowsRightLeftIcon,
   ClipboardDocumentIcon,
   MoonIcon,
   SunIcon,
 } from "@heroicons/react/24/outline";
-import { useClerk } from "@clerk/nextjs";
+import ConfirmLogout from "@/app/ui/shared/confirm-logout";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { updateUserName } from "@/app/(platform)/settings/actions";
@@ -20,7 +19,7 @@ export default function SettingsPanel({
   profileNumber: number;
 }) {
   const router = useRouter();
-  const { signOut } = useClerk();
+
   const { theme, setTheme } = useTheme();
 
   function copyId() {
@@ -92,14 +91,7 @@ export default function SettingsPanel({
           <span className="grow">{theme === "dark" ? "Modo claro" : "Modo oscuro"}</span>
         </button>
 
-        <button
-          type="button"
-          onClick={() => signOut({ redirectUrl: "/" })}
-          className="flex w-full items-center gap-3 rounded-md border border-gray-200 bg-white p-4 text-left text-sm font-medium text-red-600 hover:border-red-500 hover:bg-red-50 transition-colors dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-red-950"
-        >
-          <ArrowRightOnRectangleIcon className="w-6" />
-          <span className="grow">Cerrar sesión</span>
-        </button>
+        <ConfirmLogout triggerClassName="flex w-full items-center gap-3 rounded-md border border-gray-200 bg-white p-4 text-left text-sm font-medium text-red-600 hover:border-red-500 hover:bg-red-50 transition-colors dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-red-950" />
       </section>
     </div>
   );

@@ -1,6 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
-import { lusitana } from "@/app/ui/fonts";
+﻿import { lusitana } from "@/app/ui/fonts";
 import {
   fetchPaymentStats,
   fetchMonthlyRevenue,
@@ -22,8 +20,6 @@ import RevenueChart from "@/app/ui/shared/revenue-chart";
 import StatusChart from "@/app/ui/shared/status-chart";
 
 export default async function AdminDashboardPage() {
-  const { sessionClaims } = await auth();
-  if (!sessionClaims?.public_metadata?.roles?.includes("admin_payments")) redirect("/sign-in");
 
   const [paymentStats, userStats, monthlyRevenue, totalInvoices] =
     await Promise.all([

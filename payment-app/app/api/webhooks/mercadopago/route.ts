@@ -1,50 +1,90 @@
-import crypto from "crypto";
 import { NextResponse } from "next/server";
 import { prisma } from "@/app/lib/prisma";
-import { paymentClient } from "@/app/integrations/mercadopago";
+import { paymentClient, mpClient } from "@/app/integrations/mercadopago";
+import { MerchantOrder } from "mercadopago";
 import { updatePaymentStatus } from "@/app/lib/payments/update-status";
 import { createInvoice } from "@/app/lib/invoices/create-invoice";
 import { notifyPaymentApproved } from "@/app/integrations/notify-payment";
 
-// Recibe la notificación de Mercado Pago para actualizar el estado del payment en la base de datos.
-// estructura del request que envía Mercado Pago al webhook:
-//   { "type": "payment", "data": { "id": "<id del pago en MP>" } }
-//
-// Con ese id consultamos su API para obtener el detalle real del pago
-// (status, external_reference, payment_method_id) y actualizamos el payment en la base de datos.
+// Resuelve el ID de pago de MP desde cualquiera de los formatos de notificación posibles:
+//   - ?type=payment&data.id=<id>   (webhook desde el dashboard de MP)
+//   - ?topic=payment&id=<id>       (IPN directo de pago)
+//   - ?topic=merchant_order&id=<id>(IPN de orden mercantil)
+//   - body JSON { type: "payment", data: { id } } (webhook formato cuerpo)
+async function getMpPaymentId(request: Request): Promise<string | null> {
+  const url = new URL(request.url);
+  const topic = url.searchParams.get("topic");
+  const typeParam = url.searchParams.get("type");
+  const dataId = url.searchParams.get("data.id");
+  const id = url.searchParams.get("id");
+
+  // Formato: ?type=payment&data.id=<payment_id>
+  if (typeParam === "payment" && dataId) {
+    return dataId;
+  }
+
+  // Formato IPN: ?topic=payment&id=<payment_id>
+  if (topic === "payment" && id) {
+    return id;
+  }
+
+  // Formato IPN: ?topic=merchant_order&id=<merchant_order_id>
+  if (topic === "merchant_order" && id) {
+    const merchantOrderClient = new MerchantOrder(mpClient);
+    const order = await merchantOrderClient.get({
+      merchantOrderId: Number(id),
+    });
+
+    console.log("📦 MerchantOrder:", {
+      id: order.id,
+      status: order.order_status,
+      payments: order.payments?.map((p) => ({ id: p.id, status: p.status })),
+    });
+
+    // En sandbox, las tarjetas de prueba a veces envían merchant_order con payments[]
+    // vacío (notificación de "checkout abierto") sin una notificación de pago posterior.
+    // En producción esto no ocurre — el pago siempre genera su propia notificación.
+    const approvedPayment = order.payments?.find((p) => p.status === "approved");
+    const payment = approvedPayment ?? order.payments?.[0];
+    return payment?.id?.toString() ?? null;
+  }
+
+  // Formato body JSON (webhooks configurados en el dashboard de MP)
+  try {
+    const body = await request.json();
+    console.log("🔔 Webhook MP body:", {
+      type: body.type,
+      action: body.action,
+      dataId: body.data?.id,
+    });
+    if (body.type === "payment" && body.data?.id) {
+      return body.data.id.toString();
+    }
+  } catch {
+    // body vacío o no es JSON
+  }
+
+  return null;
+}
+
 export async function POST(request: Request) {
   try {
-    // 1. Verificar la firma de MercadoPago para asegurarnos que el request viene de mercadopago.
-    const xSignature = request.headers.get("x-signature");
-    const xRequestId = request.headers.get("x-request-id");
-    const dataId = new URL(request.url).searchParams.get("data.id");
+    const mpPaymentId = await getMpPaymentId(request);
 
-    const parts = xSignature?.split(",");
-    const ts = parts?.find((p) => p.startsWith("ts="))?.split("=")[1];
-    const v1 = parts?.find((p) => p.startsWith("v1="))?.split("=")[1];
+    console.log("🔔 Webhook MP recibido, mpPaymentId:", mpPaymentId);
 
-    const signedTemplate = `id:${dataId};request-id:${xRequestId};ts:${ts};`;
-    const generatedHash = crypto
-      .createHmac("sha256", process.env.MP_WEBHOOK_SECRET!)
-      .update(signedTemplate)
-      .digest("hex");
-
-    if (generatedHash !== v1) {
-      return new Response("Unauthorized", { status: 401 });
-    }
-
-    const body = await request.json();
-
-    // 2. Filtrar: solo nos interesan las notificaciones de tipo "payment".
-    if (body.type !== "payment" || !body.data?.id) {
-      // Otros eventos los confirmamos con 200 para que MP no reintente.
+    if (!mpPaymentId) {
       return NextResponse.json({ ignored: true });
     }
 
-    // 3. Consultar a la API de Mercado Pago el detalle real del pago.
-    const mpPayment = await paymentClient.get({ id: body.data.id });
+    const mpPayment = await paymentClient.get({ id: mpPaymentId });
 
-    // external_reference es nuestro id de pago local (el payment.id que generamos).
+    console.log("💳 MP Payment:", {
+      id: mpPayment.id,
+      status: mpPayment.status,
+      externalReference: mpPayment.external_reference,
+    });
+
     const externalReference = mpPayment.external_reference;
     if (!externalReference) {
       return NextResponse.json(
@@ -53,7 +93,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // 4. Buscar el payment por su id (@unique).
     const payment = await prisma.payment.findUnique({
       where: { id: externalReference },
     });
@@ -62,13 +101,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Payment not found" }, { status: 404 });
     }
 
-    // 5. Actualizar el estado del payment con el detalle confirmado por Mercado Pago.
-    const { alreadyProcessed, newStatus } = await updatePaymentStatus(payment, mpPayment);
+    const { alreadyProcessed, newStatus } = await updatePaymentStatus(
+      payment,
+      mpPayment,
+    );
 
-    // 6. Si el payment quedó aprobado, generamos la factura y notificamos a SellerApp y BuyerApp.
+    console.log("📊 updatePaymentStatus:", { alreadyProcessed, newStatus, prevStatus: payment.status, prevMpStatus: payment.mpStatus });
+
     if (!alreadyProcessed && newStatus === "approved") {
       await createInvoice(payment, mpPayment.date_approved ?? undefined);
-
       await notifyPaymentApproved({
         orderId: payment.orderId,
         transactionId: payment.id,

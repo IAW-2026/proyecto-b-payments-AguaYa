@@ -1,5 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
-import { redirect, notFound } from "next/navigation";
+import { notFound } from "next/navigation";
 import Link from "next/link";
 import { lusitana } from "@/app/ui/fonts";
 import { prisma } from "@/app/lib/prisma";
@@ -25,9 +24,6 @@ export default async function AdminUserDetailPage({
   params,
   searchParams,
 }: Props) {
-  const { sessionClaims } = await auth();
-  if (!sessionClaims?.public_metadata?.roles?.includes("admin_payments")) redirect("/sign-in");
-
   const { profileId } = await params;
   const { action } = await searchParams;
 

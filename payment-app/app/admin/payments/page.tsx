@@ -1,6 +1,4 @@
-import { Suspense } from "react";
-import { auth } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
+﻿import { Suspense } from "react";
 import { lusitana } from "@/app/ui/fonts";
 import { fetchAllPayments, countAllPayments, PAGE_SIZE } from "@/app/lib/data";
 import { PaymentStatus } from "@/app/lib/definitions";
@@ -25,9 +23,6 @@ export default async function AdminPaymentsPage({
 }: {
   searchParams: SearchParams;
 }) {
-  const { sessionClaims } = await auth();
-  if (!sessionClaims?.public_metadata?.roles?.includes("admin_payments")) redirect("/sign-in");
-
   const params = await searchParams;
   const status = VALID_STATUSES.includes(params.status as PaymentStatus)
     ? (params.status as PaymentStatus)

@@ -54,7 +54,7 @@ model PaymentItemSnapshot {
   payment      Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
 }
 model PaymentAdmin {
-  userId         String
+  userId         String   @unique
   paymentAdminId String   @id @default(cuid())
   name           String
   createdAt      DateTime @default(now())

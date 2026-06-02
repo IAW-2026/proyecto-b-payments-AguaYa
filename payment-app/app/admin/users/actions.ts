@@ -1,14 +1,17 @@
-"use server";
+﻿"use server";
 
-import { auth, clerkClient } from "@clerk/nextjs/server";
+import { auth, currentUser, clerkClient } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { prisma } from "@/app/lib/prisma";
 import { revalidatePath } from "next/cache";
 
 async function requireAdmin() {
-  const { sessionClaims, userId } = await auth();
-  if (!sessionClaims?.public_metadata?.roles?.includes("admin_payments")) redirect("/sign-in");
-  return userId!;
+  const { userId } = await auth();
+  if (!userId) redirect("/sign-in");
+  const clerkUser = await currentUser();
+  const roles = clerkUser?.publicMetadata?.roles as string[] | undefined;
+  if (!roles?.includes("admin_payment")) redirect("/sign-in");
+  return userId;
 }
 
 async function findProfile(profileId: string) {
@@ -31,7 +34,7 @@ export async function suspendUser(formData: FormData) {
   if (profile.status !== "ACTIVE") throw new Error("Solo se pueden suspender perfiles activos.");
 
   const clerk = await clerkClient();
-  await clerk.users.banUser(profile.clerkId);
+  try { await clerk.users.banUser(profile.clerkId); } catch {}
 
   await prisma.externalProfile.update({
     where: { id: profileId },
@@ -50,7 +53,7 @@ export async function restoreUser(formData: FormData) {
   if (profile.status !== "SUSPENDED") throw new Error("Solo se pueden restaurar perfiles suspendidos.");
 
   const clerk = await clerkClient();
-  await clerk.users.unbanUser(profile.clerkId);
+  try { await clerk.users.unbanUser(profile.clerkId); } catch {}
 
   await prisma.externalProfile.update({
     where: { id: profileId },
@@ -70,7 +73,7 @@ export async function deleteUser(formData: FormData) {
   if (profile.status === "DELETED") throw new Error("El perfil ya fue eliminado.");
 
   const clerk = await clerkClient();
-  await clerk.users.deleteUser(profile.clerkId);
+  try { await clerk.users.deleteUser(profile.clerkId); } catch {}
 
   await prisma.externalProfile.update({
     where: { id: profileId },

@@ -9,7 +9,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ClerkProvider>
+    <ClerkProvider signInFallbackRedirectUrl="/select-role" signUpFallbackRedirectUrl="/select-role">
       <html lang="en" suppressHydrationWarning>
         <body className={`${inter.className} antialiased`}>
           <ThemeProvider>{children}</ThemeProvider>

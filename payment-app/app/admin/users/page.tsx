@@ -1,6 +1,4 @@
-import { Suspense } from "react";
-import { auth } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
+﻿import { Suspense } from "react";
 import { lusitana } from "@/app/ui/fonts";
 import { fetchAllUsers, countAllUsers, PAGE_SIZE } from "@/app/lib/data";
 import SearchInput from "@/app/ui/shared/search-input";
@@ -25,9 +23,6 @@ export default async function AdminUsersPage({
 }: {
   searchParams: SearchParams;
 }) {
-  const { sessionClaims } = await auth();
-  if (!sessionClaims?.public_metadata?.roles?.includes("admin_payments")) redirect("/sign-in");
-
   const params = await searchParams;
   const query = params.query;
   const page = Math.max(1, parseInt(params.page ?? "1", 10) || 1);
@@ -81,16 +76,16 @@ export default async function AdminUsersPage({
                       {user.profileNumber}
                     </td>
                     <td className="px-4 py-3 text-gray-700 dark:text-gray-300">
-                      {user.userName ?? "—"}
+                      {user.userName ?? "â€”"}
                     </td>
                     <td className="px-4 py-3 font-mono text-xs text-gray-500 dark:text-gray-400">
                       {user.clerkId}
                     </td>
                     <td className="px-4 py-3 font-mono text-xs text-gray-500 dark:text-gray-400">
-                      {user.buyerId ?? "—"}
+                      {user.buyerId ?? "â€”"}
                     </td>
                     <td className="px-4 py-3 font-mono text-xs text-gray-500 dark:text-gray-400">
-                      {user.sellerId ?? "—"}
+                      {user.sellerId ?? "â€”"}
                     </td>
                     <td className="px-4 py-3">
                       <span

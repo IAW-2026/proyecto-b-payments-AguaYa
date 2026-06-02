@@ -35,7 +35,9 @@ export async function updatePaymentStatus(
       mpPaymentId: mpPayment.id != null ? String(mpPayment.id) : undefined,
       mpStatus: mpPayment.status ?? undefined,
       mpPaymentMethod: mpPayment.payment_method_id ?? undefined,
-      mpPaymentDate: mpPayment.date_approved ? new Date(mpPayment.date_approved) : undefined,
+      mpPaymentDate: mpPayment.date_approved
+        ? new Date(mpPayment.date_approved)
+        : undefined,
       status: newStatus,
     },
   });
@@ -53,6 +55,8 @@ function mapStatus(mpStatus: string | undefined): PaymentStatus {
       return "rejected";
     case "cancelled":
       return "cancelled";
+    case "expired":
+      return "expired";
     default:
       return "pending";
   }
