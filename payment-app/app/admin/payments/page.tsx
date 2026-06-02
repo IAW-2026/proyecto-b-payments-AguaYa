@@ -1,5 +1,8 @@
-﻿import { Suspense } from "react";
+﻿import type { Metadata } from "next";
+import { Suspense } from "react";
 import { lusitana } from "@/app/ui/fonts";
+
+export const metadata: Metadata = { title: "Payments" };
 import { fetchAllPayments, countAllPayments, PAGE_SIZE } from "@/app/lib/data";
 import { PaymentStatus } from "@/app/lib/definitions";
 import PaymentsTable from "@/app/ui/shared/payments-table";

@@ -138,6 +138,29 @@ export async function fetchSellerInvoices(sellerId: string) {
   });
 }
 
+export async function fetchAdminInvoiceById(invoiceId: string) {
+  return prisma.invoice.findUnique({
+    where: { id: invoiceId },
+    select: {
+      id: true,
+      subtotal: true,
+      tax: true,
+      total: true,
+      issuedAt: true,
+      payment: {
+        select: {
+          orderId: true,
+          buyerName: true,
+          buyerEmail: true,
+          sellerName: true,
+          status: true,
+          mpPaymentMethod: true,
+        },
+      },
+    },
+  });
+}
+
 export async function fetchAllInvoices(query?: string, page = 1) {
   return prisma.invoice.findMany({
     where: invoicesSearchWhere(query),

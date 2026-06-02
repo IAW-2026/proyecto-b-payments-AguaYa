@@ -37,6 +37,7 @@ export default function Pagination({
         ) : (
           <Link
             href={href(page - 1)}
+            aria-label="Página anterior"
             className="rounded p-1 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           >
             <ChevronLeftIcon className="w-5" />
@@ -49,6 +50,7 @@ export default function Pagination({
         ) : (
           <Link
             href={href(page + 1)}
+            aria-label="Página siguiente"
             className="rounded p-1 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           >
             <ChevronRightIcon className="w-5" />

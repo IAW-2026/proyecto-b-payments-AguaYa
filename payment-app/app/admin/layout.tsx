@@ -2,6 +2,14 @@ import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { prisma } from "@/app/lib/prisma";
 import SideNavAdmin from "@/app/ui/admin/sidenav-admin";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: {
+    template: "%s | AguaYa Admin",
+    default: "AguaYa Admin",
+  },
+};
 
 export default async function AdminLayout({
   children,

@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { prisma } from "@/app/lib/prisma";
 import { buildPDF } from "@/app/lib/invoices/build-pdf";
@@ -10,22 +10,28 @@ export async function GET(
   const { userId } = await auth();
   if (!userId) redirect("/sign-in");
 
+  const clerkUser = await currentUser();
+  const roles = clerkUser?.publicMetadata?.roles as string[] | undefined;
+  const isAdmin = roles?.includes("admin_payment") ?? false;
+
   const profile = await prisma.externalProfile.findUnique({
     where: { clerkId: userId },
   });
 
-  if (!profile?.buyerId && !profile?.sellerId) redirect("/select-role");
+  if (!isAdmin && !profile?.buyerId && !profile?.sellerId) redirect("/select-role");
 
   const { invoiceId } = await context.params;
 
   const invoice = await prisma.invoice.findFirst({
-    where: {
-      id: invoiceId,
-      OR: [
-        ...(profile.buyerId ? [{ payment: { buyerId: profile.buyerId } }] : []),
-        ...(profile.sellerId ? [{ payment: { sellerId: profile.sellerId } }] : []),
-      ],
-    },
+    where: isAdmin
+      ? { id: invoiceId }
+      : {
+          id: invoiceId,
+          OR: [
+            ...(profile?.buyerId ? [{ payment: { buyerId: profile.buyerId } }] : []),
+            ...(profile?.sellerId ? [{ payment: { sellerId: profile.sellerId } }] : []),
+          ],
+        },
     select: {
       id: true,
       subtotal: true,

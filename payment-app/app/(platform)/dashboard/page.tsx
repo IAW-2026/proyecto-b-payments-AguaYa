@@ -1,4 +1,7 @@
+import type { Metadata } from "next";
 import { auth } from "@clerk/nextjs/server";
+
+export const metadata: Metadata = { title: "Dashboard" };
 import { redirect } from "next/navigation";
 import { prisma } from "@/app/lib/prisma";
 import { getRole } from "@/app/lib/get-role";
