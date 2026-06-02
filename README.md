@@ -18,6 +18,18 @@ Al iniciar sesión, cualquier usuario se vincula automáticamente con IDs de pru
 - Email: `buyer+seller+clerktest@iaw.com` que tiene ambos roles
 - Contraseña: `iawuser#`
 
+**Otras cuentas temporales (opciones a considerar)**
+
+Las cuentas sugeridas por la cátedra no fueron pre-pobladas; como alternativa temporal pueden probarse estas cuentas usando yopmail.com:
+
+- Email: `zexuttitriyoi-5675@yopmail.com` (admin)
+- Email: `grinnoiyaxitrau-8388@yopmail.com`
+- Email: `wefaxeiroudi-4351@yopmail.com`
+
+Todas con contraseña: `falso-123`
+
+Usar estas cuentas solo como alternativa temporal; preferir las cuentas de la cátedra cuando estén disponibles.
+
 **Para login:**
 
 - Usar cualquier email o conectarse con Google/GitHub
@@ -26,12 +38,6 @@ Al iniciar sesión, cualquier usuario se vincula automáticamente con IDs de pru
 **Para acceso admin:**
 
 - Se requiere que el usuario tenga el rol `admin_payment` en Clerk (configurado manualmente)
-
-## Notas de entrega
-
-- El código final debe estar en el branch `main`.
-- El deploy debe ser de producción en Vercel, no un preview.
-- La aplicación contiene datos precargados suficientes para probar flujos de pago, facturas y administración.
 
 ## Instrucciones para evaluar
 

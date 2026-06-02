@@ -31,7 +31,7 @@ npx prisma db seed
 npm run dev
 ```
 
-**Servidor disponible en:** `http://localhost:3000`
+**Servidor disponible en:** https://proyecto-b-payments-agua-ya.vercel.app/
 
 ## Rutas principales
 
