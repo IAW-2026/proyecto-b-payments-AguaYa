@@ -59,14 +59,30 @@ export default async function AdminUsersPage({
             <table className="min-w-full text-sm">
               <thead>
                 <tr className="bg-gray-50 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:bg-gray-800 dark:text-gray-400">
-                  <th scope="col" className="px-4 py-3">#</th>
-                  <th scope="col" className="px-4 py-3">Username</th>
-                  <th scope="col" className="px-4 py-3">Clerk ID</th>
-                  <th scope="col" className="px-4 py-3">Buyer ID</th>
-                  <th scope="col" className="px-4 py-3">Seller ID</th>
-                  <th scope="col" className="px-4 py-3">Estado</th>
-                  <th scope="col" className="px-4 py-3">Creado</th>
-                  <th scope="col" className="px-4 py-3"><span className="sr-only">Acciones</span></th>
+                  <th scope="col" className="px-4 py-3">
+                    #
+                  </th>
+                  <th scope="col" className="px-4 py-3">
+                    Username
+                  </th>
+                  <th scope="col" className="px-4 py-3">
+                    Clerk ID
+                  </th>
+                  <th scope="col" className="px-4 py-3">
+                    Buyer ID
+                  </th>
+                  <th scope="col" className="px-4 py-3">
+                    Seller ID
+                  </th>
+                  <th scope="col" className="px-4 py-3">
+                    Estado
+                  </th>
+                  <th scope="col" className="px-4 py-3">
+                    Creado
+                  </th>
+                  <th scope="col" className="px-4 py-3">
+                    <span className="sr-only">Acciones</span>
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
@@ -78,17 +94,27 @@ export default async function AdminUsersPage({
                     <td className="px-4 py-3 font-mono text-xs font-semibold text-gray-700 dark:text-gray-300">
                       {user.profileNumber}
                     </td>
-                    <td className=”px-4 py-3 text-gray-700 dark:text-gray-300”>
-                      {user.userName ?? <span className=”text-gray-400 italic”>Sin nombre</span>}
+                    <td className="px-4 py-3 text-gray-700 dark:text-gray-300">
+                      {user.userName ?? (
+                        <span className="text-gray-400 italic">Sin nombre</span>
+                      )}
                     </td>
-                    <td className=”px-4 py-3 font-mono text-xs text-gray-500 dark:text-gray-400”>
+                    <td className="px-4 py-3 font-mono text-xs text-gray-500 dark:text-gray-400">
                       {user.clerkId}
                     </td>
-                    <td className=”px-4 py-3 font-mono text-xs text-gray-500 dark:text-gray-400”>
-                      {user.buyerId ?? <span className=”font-sans italic text-gray-400”>Sin registro</span>}
+                    <td className="px-4 py-3 font-mono text-xs text-gray-500 dark:text-gray-400">
+                      {user.buyerId ?? (
+                        <span className="font-sans italic text-gray-400">
+                          Sin registro
+                        </span>
+                      )}
                     </td>
-                    <td className=”px-4 py-3 font-mono text-xs text-gray-500 dark:text-gray-400”>
-                      {user.sellerId ?? <span className=”font-sans italic text-gray-400”>Sin registro</span>}
+                    <td className="px-4 py-3 font-mono text-xs text-gray-500 dark:text-gray-400">
+                      {user.sellerId ?? (
+                        <span className="font-sans italic text-gray-400">
+                          Sin registro
+                        </span>
+                      )}
                     </td>
                     <td className="px-4 py-3">
                       <span
