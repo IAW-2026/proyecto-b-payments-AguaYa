@@ -1,67 +1,109 @@
-import { auth } from "@clerk/nextjs/server";
+﻿import type { Metadata } from "next";
+import { auth, currentUser } from "@clerk/nextjs/server";
+
+export const metadata: Metadata = { title: "Seleccionar rol" };
 import { redirect } from "next/navigation";
-import { ShoppingBagIcon, BuildingStorefrontIcon } from "@heroicons/react/24/outline";
-import Link from "next/link";
+import {
+  ShoppingBagIcon,
+  BuildingStorefrontIcon,
+} from "@heroicons/react/24/outline";
 import { resolveExternalProfile } from "@/app/lib/data";
+import { selectRole } from "./actions";
 
 export default async function SelectRolePage() {
-  const { userId } = await auth();
+  const { userId, sessionClaims } = await auth();
   if (!userId) redirect("/sign-in");
 
-  const profile = await resolveExternalProfile(userId);
+  const clerkUser = await currentUser();
+  const roles = clerkUser?.publicMetadata?.roles as string[] | undefined;
+  if (roles?.includes("admin_payment")) {
+    redirect("/admin/dashboard");
+  }
+  const name =
+    clerkUser?.fullName ??
+    clerkUser?.primaryEmailAddress?.emailAddress ??
+    userId;
 
-  const hasBuyer  = !!profile.buyerId;
+  const profile = await resolveExternalProfile(userId, name);
+
+  if (profile.status === "DELETED" || profile.status === "SUSPENDED") {
+    redirect("/no-account");
+  }
+
+  const hasBuyer = !!profile.buyerId;
   const hasSeller = !!profile.sellerId;
 
-  // Sin cuenta en ninguna app → página explicativa
   if (!hasBuyer && !hasSeller) redirect("/no-account");
 
+  const selectBuyer = selectRole.bind(null, "buyer");
+  const selectSeller = selectRole.bind(null, "seller");
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50">
+    <main className="flex min-h-screen items-center justify-center bg-gray-50">
       <div className="text-center">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          ¿Cómo quieres usar AguaYa?
+          ¿Cómo quieres usar AguaYa Pagos?
         </h1>
         <p className="text-gray-500 mb-10">Elige tu rol para continuar</p>
 
         <div className="flex flex-col sm:flex-row gap-6 justify-center">
           {/* Buyer Portal */}
           {hasBuyer ? (
-            <Link
-              href="/buyer/dashboard"
-              className="flex flex-col items-center gap-4 w-52 rounded-2xl border-2 border-gray-200 bg-white p-8 shadow-sm hover:border-blue-500 hover:shadow-md transition-all"
-            >
-              <ShoppingBagIcon className="w-12 h-12 text-blue-500" />
-              <span className="text-lg font-semibold text-gray-800">Comprador</span>
-              <span className="text-sm text-gray-400">Realiza pagos y gestiona tus compras</span>
-            </Link>
+            <form action={selectBuyer}>
+              <button
+                type="submit"
+                className="flex flex-col items-center gap-4 w-52 rounded-2xl border-2 border-gray-200 bg-white p-8 shadow-sm hover:border-blue-500 hover:shadow-md transition-all cursor-pointer"
+              >
+                <ShoppingBagIcon className="w-12 h-12 text-blue-500" />
+                <span className="text-lg font-semibold text-gray-800">
+                  Comprador
+                </span>
+                <span className="text-sm text-gray-600">
+                  Realiza pagos y gestiona tus compras
+                </span>
+              </button>
+            </form>
           ) : (
             <div className="flex flex-col items-center gap-4 w-52 rounded-2xl border-2 border-gray-200 bg-white p-8 shadow-sm opacity-50 cursor-not-allowed">
               <ShoppingBagIcon className="w-12 h-12 text-gray-400" />
-              <span className="text-lg font-semibold text-gray-500">Comprador</span>
-              <span className="text-sm text-gray-400">No tenés acceso como comprador</span>
+              <span className="text-lg font-semibold text-gray-500">
+                Comprador
+              </span>
+              <span className="text-sm text-gray-600">
+                No tenés acceso como comprador
+              </span>
             </div>
           )}
 
           {/* Seller Portal */}
           {hasSeller ? (
-            <Link
-              href="/seller/dashboard"
-              className="flex flex-col items-center gap-4 w-52 rounded-2xl border-2 border-gray-200 bg-white p-8 shadow-sm hover:border-blue-500 hover:shadow-md transition-all"
-            >
-              <BuildingStorefrontIcon className="w-12 h-12 text-blue-500" />
-              <span className="text-lg font-semibold text-gray-800">Vendedor</span>
-              <span className="text-sm text-gray-400">Gestiona cobros, clientes y reportes</span>
-            </Link>
+            <form action={selectSeller}>
+              <button
+                type="submit"
+                className="flex flex-col items-center gap-4 w-52 rounded-2xl border-2 border-gray-200 bg-white p-8 shadow-sm hover:border-blue-500 hover:shadow-md transition-all cursor-pointer"
+              >
+                <BuildingStorefrontIcon className="w-12 h-12 text-blue-500" />
+                <span className="text-lg font-semibold text-gray-800">
+                  Vendedor
+                </span>
+                <span className="text-sm text-gray-600">
+                  Gestiona cobros, clientes y reportes
+                </span>
+              </button>
+            </form>
           ) : (
             <div className="flex flex-col items-center gap-4 w-52 rounded-2xl border-2 border-gray-200 bg-white p-8 shadow-sm opacity-50 cursor-not-allowed">
               <BuildingStorefrontIcon className="w-12 h-12 text-gray-400" />
-              <span className="text-lg font-semibold text-gray-500">Vendedor</span>
-              <span className="text-sm text-gray-400">No tenés acceso como vendedor</span>
+              <span className="text-lg font-semibold text-gray-500">
+                Vendedor
+              </span>
+              <span className="text-sm text-gray-600">
+                No tenés acceso como vendedor
+              </span>
             </div>
           )}
         </div>
       </div>
-    </div>
+    </main>
   );
 }

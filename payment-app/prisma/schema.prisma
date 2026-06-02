@@ -54,7 +54,7 @@ model PaymentItemSnapshot {
   payment      Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
 }
 model PaymentAdmin {
-  userId         String
+  userId         String   @unique
   paymentAdminId String   @id @default(cuid())
   name           String
   createdAt      DateTime @default(now())
@@ -71,10 +71,13 @@ model Invoice {
 }
 
 model ExternalProfile {
-  id        String   @id @default(cuid())
+  id        String   @id @default(cuid()) //interno para relaciones
+  profileNumber Int  @unique @default(autoincrement()) // visible al usuario
+  userName      String?
   clerkId   String   @unique
-  buyerId   String?
-  sellerId  String?
+  buyerId   String? //perfil de Buyer
+  sellerId  String? //perfil de Seller
+  status    ProfileStatus @default(ACTIVE)
   createdAt DateTime @default(now())
 }
 
@@ -84,4 +87,10 @@ enum PaymentStatus {
   approved
   rejected
   expired
+}
+
+enum ProfileStatus {
+  ACTIVE
+  DELETED
+  SUSPENDED // por ejemplo, si el admin suspende un usuario
 }

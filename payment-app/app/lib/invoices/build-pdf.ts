@@ -81,7 +81,7 @@ export function buildPDF(invoice: InvoiceData): Promise<ArrayBuffer> {
 
     // Totales
     doc.font("Helvetica").text("Subtotal", { continued: true }).text(fmt(invoice.subtotal), { align: "right" });
-    doc.text("IVA (21%)", { continued: true }).text(fmt(invoice.tax), { align: "right" });
+    doc.text("IVA est. (21%)", { continued: true }).text(fmt(invoice.tax), { align: "right" });
     doc.moveDown(0.5);
     doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke();
     doc.moveDown(0.5);

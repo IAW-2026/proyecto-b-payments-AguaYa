@@ -7,6 +7,8 @@ export type RecentPayment = {
   amount: number;
   status: PaymentStatus;
   createdAt: Date;
+  buyerName?: string;
+  sellerName?: string;
 };
 
 export type RecentInvoice = {
@@ -22,11 +24,13 @@ export type RecentInvoice = {
   };
 };
 
-export type BuyerPayment = {
+export type Payment = {
   id: string;
   orderId: string;
   amount: number;
   status: PaymentStatus;
   createdAt: Date;
   mpPaymentMethod: string | null;
+  buyerName?: string;
+  sellerName?: string;
 };

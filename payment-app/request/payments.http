@@ -10,23 +10,23 @@ Content-Type: application/json
 x-api-key: {{INTERNAL_API_KEY}}
 
 {
-  "orderId": "order_18",
+  "orderId": "order_3027",
   "buyer": {
-    "id": "buyer_5",
-    "name": "Juan Pérez",
-    "email": "juan@mail.com"
+    "id": "mock-buyer-user_3EXlCP954p1zm48ky5CjmHaYe3O",
+    "name": "Enrique Quique",
+    "email": "wefaxeiroudi-4351@yopmail.com"
   },
   "seller": {
-    "id": "seller_6",
-    "name": "Vendedor AguaYa"
+    "id": "seller_4000",
+    "name": "Vendedor Aquadrom"
   },
-  "amount": 1000,
+  "amount": 500,
   "items": [
     {
       "id": "prod_1",
       "name": "Agua 5L",
       "imageUrl": "https://picsum.photos/200/300",
-      "quantity": 2,
+      "quantity": 1,
       "unitPrice": 500
     }
   ]

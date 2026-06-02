@@ -1,55 +1,111 @@
 "use client";
+
 import {
-  ArrowRightOnRectangleIcon,
   ArrowsRightLeftIcon,
-  ShoppingBagIcon,
-  BuildingStorefrontIcon,
+  ClipboardDocumentIcon,
+  MoonIcon,
+  SunIcon,
 } from "@heroicons/react/24/outline";
-import { useClerk } from "@clerk/nextjs";
-import { usePathname, useRouter } from "next/navigation";
+import ConfirmLogout from "@/app/ui/shared/confirm-logout";
+import { useRouter } from "next/navigation";
+import { useTheme } from "next-themes";
+import { updateUserName } from "@/app/(platform)/settings/actions";
 
-export default function SettingsPanel() {
-  const pathname = usePathname();
+export default function SettingsPanel({
+  userName,
+  profileNumber,
+}: {
+  userName: string | null;
+  profileNumber: number;
+}) {
   const router = useRouter();
-  const { signOut } = useClerk();
 
-  const role = pathname.split("/")[1]; // "buyer" | "seller"
+  const { theme, setTheme } = useTheme();
 
-  const switchTarget = role === "seller"
-    ? { href: "/buyer/dashboard", label: "Cambiar a comprador", Icon: ShoppingBagIcon }
-    : { href: "/seller/dashboard", label: "Cambiar a vendedor", Icon: BuildingStorefrontIcon };
+  function copyId() {
+    navigator.clipboard.writeText(String(profileNumber));
+  }
 
   return (
-    <div className="max-w-md">
-      <h1 className="mb-1 text-2xl font-bold text-gray-900">Configuración</h1>
-      <p className="mb-8 text-sm text-gray-500">
-        Estás usando AguaYa como{" "}
-        <span className="font-medium text-gray-700">
-          {role === "seller" ? "vendedor" : "comprador"}
-        </span>
-        .
-      </p>
+    <div className="max-w-md space-y-8">
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+        Configuración
+      </h1>
 
-      <div className="flex flex-col gap-3">
+      {/* Perfil */}
+      <section className="space-y-4">
+        <h2 className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+          Perfil
+        </h2>
+
+        <form action={updateUserName} className="flex gap-2">
+          <input
+            name="userName"
+            defaultValue={userName ?? ""}
+            placeholder="Nombre de usuario"
+            className="flex-1 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-800 placeholder-gray-400 focus:border-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+          />
+          <button
+            type="submit"
+            className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors"
+          >
+            Guardar
+          </button>
+        </form>
+
+        <div className="flex items-center justify-between rounded-md border border-gray-200 bg-gray-50 px-4 py-3 dark:border-gray-700 dark:bg-gray-800">
+          <div>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              ID público
+            </p>
+            <p className="mt-0.5 font-mono text-sm text-gray-700 dark:text-gray-300">
+              #{profileNumber}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={copyId}
+            title="Copiar ID"
+            aria-label="Copiar ID"
+            className="text-gray-400 hover:text-blue-500 transition-colors"
+          >
+            <ClipboardDocumentIcon className="w-5" />
+          </button>
+        </div>
+      </section>
+
+      {/* Acciones */}
+      <section className="space-y-3">
+        <h2 className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+          Cuenta
+        </h2>
+
         <button
           type="button"
-          onClick={() => router.push(switchTarget.href)}
-          className="flex items-center gap-3 rounded-md border border-gray-200 bg-white p-4 text-left text-sm font-medium text-gray-700 hover:border-blue-500 hover:text-blue-600 transition-colors"
+          onClick={() => router.push("/select-role")}
+          className="flex w-full items-center gap-3 rounded-md border border-gray-200 bg-white p-4 text-left text-sm font-medium text-gray-700 hover:border-blue-500 hover:text-blue-600 transition-colors dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:border-blue-400 dark:hover:text-blue-400"
         >
-          <switchTarget.Icon className="w-6" />
-          <span className="grow">{switchTarget.label}</span>
-          <ArrowsRightLeftIcon className="w-5 text-gray-400" />
+          <ArrowsRightLeftIcon className="w-6" />
+          <span className="grow">Cambiar de rol</span>
         </button>
 
         <button
           type="button"
-          onClick={() => signOut({ redirectUrl: "/" })}
-          className="flex items-center gap-3 rounded-md border border-gray-200 bg-white p-4 text-left text-sm font-medium text-red-600 hover:border-red-500 hover:bg-red-50 transition-colors"
+          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          className="flex w-full items-center gap-3 rounded-md border border-gray-200 bg-white p-4 text-left text-sm font-medium text-gray-700 hover:border-blue-500 hover:text-blue-600 transition-colors dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:border-blue-400"
         >
-          <ArrowRightOnRectangleIcon className="w-6" />
-          <span className="grow">Cerrar sesión</span>
+          {theme === "dark" ? (
+            <SunIcon className="w-6" />
+          ) : (
+            <MoonIcon className="w-6" />
+          )}
+          <span className="grow">
+            {theme === "dark" ? "Modo claro" : "Modo oscuro"}
+          </span>
         </button>
-      </div>
+
+        <ConfirmLogout triggerClassName="flex w-full items-center gap-3 rounded-md border border-red-600 bg-red-600 p-4 text-left text-sm font-medium text-white hover:border-red-700 hover:bg-red-700 transition-colors dark:border-red-500 dark:bg-red-600 dark:text-white dark:hover:bg-red-700" />
+      </section>
     </div>
   );
 }

@@ -73,7 +73,7 @@ export default function PaymentResult({
         )}
 
         <Link
-          href="/buyer/payments"
+          href="/payments"
           className="inline-block rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-500"
         >
           Back to my payments
