@@ -14,7 +14,8 @@ model Payment {
   buyerId         String
   buyerName       String
   buyerEmail      String
-  
+  buyerAddress    String?
+
   sellerId        String
   sellerName      String
   

@@ -35,6 +35,9 @@ export default async function SelectRolePage() {
 
   if (!hasBuyer && !hasSeller) redirect("/no-account");
 
+  if (hasBuyer && !hasSeller) await selectRole("buyer");
+  if (hasSeller && !hasBuyer) await selectRole("seller");
+
   const selectBuyer = selectRole.bind(null, "buyer");
   const selectSeller = selectRole.bind(null, "seller");
 
@@ -47,8 +50,7 @@ export default async function SelectRolePage() {
         <p className="text-gray-500 mb-10">Elige tu rol para continuar</p>
 
         <div className="flex flex-col sm:flex-row gap-6 justify-center">
-          {/* Buyer Portal */}
-          {hasBuyer ? (
+          {hasBuyer && (
             <form action={selectBuyer}>
               <button
                 type="submit"
@@ -63,20 +65,9 @@ export default async function SelectRolePage() {
                 </span>
               </button>
             </form>
-          ) : (
-            <div className="flex flex-col items-center gap-4 w-52 rounded-2xl border-2 border-gray-200 bg-white p-8 shadow-sm opacity-50 cursor-not-allowed">
-              <ShoppingBagIcon className="w-12 h-12 text-gray-400" />
-              <span className="text-lg font-semibold text-gray-500">
-                Comprador
-              </span>
-              <span className="text-sm text-gray-600">
-                No tenés acceso como comprador
-              </span>
-            </div>
           )}
 
-          {/* Seller Portal */}
-          {hasSeller ? (
+          {hasSeller && (
             <form action={selectSeller}>
               <button
                 type="submit"
@@ -91,16 +82,6 @@ export default async function SelectRolePage() {
                 </span>
               </button>
             </form>
-          ) : (
-            <div className="flex flex-col items-center gap-4 w-52 rounded-2xl border-2 border-gray-200 bg-white p-8 shadow-sm opacity-50 cursor-not-allowed">
-              <BuildingStorefrontIcon className="w-12 h-12 text-gray-400" />
-              <span className="text-lg font-semibold text-gray-500">
-                Vendedor
-              </span>
-              <span className="text-sm text-gray-600">
-                No tenés acceso como vendedor
-              </span>
-            </div>
           )}
         </div>
       </div>

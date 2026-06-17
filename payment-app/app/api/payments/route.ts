@@ -13,7 +13,8 @@ import { createMercadoPagoPreference } from "@/app/integrations/mercadopago/crea
     "buyer": {
       "id": String,
       "name": String,
-      "email": String
+      "email": String,
+      "address": String
     },
     "seller": {
       "id": String,
@@ -52,6 +53,13 @@ export async function POST(request: Request) {
     );
   }
 
+  if (!body.buyer?.address || typeof body.buyer.address !== "string") {
+    return NextResponse.json(
+      { error: "buyer.address is required" },
+      { status: 400 },
+    );
+  }
+
   // Crear el payment y guardarlo en la base de datos
   const payment = await prisma.payment.create({
     data: {
@@ -60,6 +68,7 @@ export async function POST(request: Request) {
       buyerId: body.buyer.id,
       buyerName: body.buyer.name,
       buyerEmail: body.buyer.email,
+      buyerAddress: body.buyer.address,
       //datos del seller
       sellerId: body.seller.id,
       sellerName: body.seller.name,
