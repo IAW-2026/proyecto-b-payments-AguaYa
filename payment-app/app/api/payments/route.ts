@@ -5,6 +5,7 @@ import { createMercadoPagoPreference } from "@/app/integrations/mercadopago/crea
 // la siguiente es la estructura esperada del header y body de la petición para crear un nuevo pago desde la app de buyer
 /*
   Headers:
+  'Content-Type': 'application/json'
     x-api-key: <INTERNAL_API_KEY>
 
   Body:
@@ -100,28 +101,28 @@ export async function POST(request: Request) {
     },
   });
 
-  // se crea la preferencia de pago en MercadoPago usando el ID del payment local como referencia externa
-  //y los items del pago para mostrar en la pantalla de checkout de MercadoPago
-  const preference = await createMercadoPagoPreference({
-    paymentId: payment.id,
-    items: body.items,
-  });
+  try {
+    const preference = await createMercadoPagoPreference({
+      paymentId: payment.id,
+      items: body.items,
+    });
 
-  // se actualiza el payment  con el ID de la preferencia de MercadoPago
-  // para poder relacionarlos en el futuro (ej. al recibir notificaciones de pago)
-  await prisma.payment.update({
-    where: {
-      id: payment.id,
-    },
-    data: {
-      mpPreferenceId: preference.id,
-    },
-  });
+    await prisma.payment.update({
+      where: { id: payment.id },
+      data: { mpPreferenceId: preference.id },
+    });
 
-  return NextResponse.json({
-    message: "payment created",
-    paymentId: payment.id,
-    preferenceId: preference.id,
-    checkoutUrl: preference.sandbox_init_point,
-  });
+    return NextResponse.json({
+      message: "payment created",
+      paymentId: payment.id,
+      preferenceId: preference.id,
+      checkoutUrl: preference.sandbox_init_point,
+    });
+  } catch (error) {
+    await prisma.payment.delete({ where: { id: payment.id } });
+    return NextResponse.json(
+      { error: "could not create payment preference" },
+      { status: 500 },
+    );
+  }
 }

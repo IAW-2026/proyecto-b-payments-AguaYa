@@ -42,5 +42,8 @@ export async function createMercadoPagoPreference({
       // auto_return: "approved",
     },
   });
+
+  console.log("🔗 Preference:", response.notification_url, response.id);
+
   return response;
 }
