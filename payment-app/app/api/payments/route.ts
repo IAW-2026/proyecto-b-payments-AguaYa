@@ -116,7 +116,7 @@ export async function POST(request: Request) {
       message: "payment created",
       paymentId: payment.id,
       preferenceId: preference.id,
-      checkoutUrl: preference.sandbox_init_point,
+      checkoutUrl: preference.init_point,
     });
   } catch (error) {
     await prisma.payment.delete({ where: { id: payment.id } });

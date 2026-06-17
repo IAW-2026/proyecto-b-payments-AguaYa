@@ -25,6 +25,7 @@ export async function createMercadoPagoPreference({
         picture_url: item.imageUrl,
         quantity: item.quantity,
         unit_price: item.unitPrice,
+        currency_id: "ARS",
       })),
 
       external_reference: paymentId,
