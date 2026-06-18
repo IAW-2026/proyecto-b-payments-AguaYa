@@ -1,6 +1,5 @@
 type NotifyPaymentApprovedInput = {
   orderId: string;
-  transactionId: string;
   amount: number;
   buyerId: string;
   buyerName: string;
@@ -43,18 +42,14 @@ async function notifySellerApp(
   });
 
   if (!response.ok) {
+    const body = await response.text();
     throw new Error(
-      `Failed to notify seller app: ${response.status} ${response.statusText}`,
+      `Failed to notify seller app: ${response.status} ${response.statusText} — ${body}`,
     );
   }
 }
 
-async function notifyBuyerApp(
-  orderId: string,
-  transactionId: string,
-  amount: number,
-  buyerId: string,
-) {
+async function notifyBuyerApp(orderId: string) {
   const buyerAppUrl = process.env.BUYER_APP_URL;
   const serviceToken = process.env.BUYER_APP_SERVICE_TOKEN;
 
@@ -66,21 +61,23 @@ async function notifyBuyerApp(
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
-      "X-Service-Token": serviceToken,
+      "x-api-key": serviceToken,
     },
-    body: JSON.stringify({ transactionId, amount, buyerId }),
+    body: JSON.stringify({ orderStatus: "PAID" }),
   });
+
+  const body = await response.text();
+  console.log(`📨 BuyerApp respondió ${response.status}:`, body);
 
   if (!response.ok) {
     throw new Error(
-      `Failed to notify buyer app: ${response.status} ${response.statusText}`,
+      `Failed to notify buyer app: ${response.status} ${response.statusText} — ${body}`,
     );
   }
 }
 
 export async function notifyPaymentApproved({
   orderId,
-  transactionId,
   amount,
   buyerId,
   buyerName,
@@ -90,7 +87,7 @@ export async function notifyPaymentApproved({
 }: NotifyPaymentApprovedInput) {
   const results = await Promise.allSettled([
     notifySellerApp(orderId, sellerId, buyerId, buyerName, buyerAddress, items, amount),
-    notifyBuyerApp(orderId, transactionId, amount, buyerId),
+    notifyBuyerApp(orderId),
   ]);
 
   if (results[0].status === "fulfilled") {

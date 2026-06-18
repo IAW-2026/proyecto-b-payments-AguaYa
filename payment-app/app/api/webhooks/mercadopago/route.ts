@@ -119,7 +119,6 @@ export async function POST(request: Request) {
       }
       await notifyPaymentApproved({
         orderId: payment.orderId,
-        transactionId: payment.id,
         amount: payment.amount,
         buyerId: payment.buyerId,
         buyerName: payment.buyerName,
