@@ -14,7 +14,8 @@ x-api-key: {{INTERNAL_API_KEY}}
   "buyer": {
     "id": "mock-buyer-user_3EXlCP954p1zm48ky5CjmHaYe3O",
     "name": "Enrique Quique",
-    "email": "wefaxeiroudi-4351@yopmail.com"
+    "email": "wefaxeiroudi-4351@yopmail.com",
+    "address": "Av. Siempre Viva 123"
   },
   "seller": {
     "id": "seller_4000",

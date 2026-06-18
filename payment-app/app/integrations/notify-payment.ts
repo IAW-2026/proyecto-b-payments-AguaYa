@@ -1,14 +1,21 @@
 type NotifyPaymentApprovedInput = {
   orderId: string;
-  transactionId: string;
   amount: number;
   buyerId: string;
+  buyerName: string;
+  sellerId: string;
+  buyerAddress: string;
+  items: { productId: string; quantity: number }[];
 };
 
 async function notifySellerApp(
   orderId: string,
-  transactionId: string,
-  amount: number,
+  sellerId: string,
+  buyerId: string,
+  buyerName: string,
+  buyerAddress: string,
+  items: { productId: string; quantity: number }[],
+  total: number,
 ) {
   const sellerAppUrl = process.env.SELLER_APP_URL;
   const serviceToken = process.env.SELLER_APP_SERVICE_TOKEN;
@@ -17,28 +24,32 @@ async function notifySellerApp(
     throw new Error("SELLER_APP_URL or SELLER_APP_SERVICE_TOKEN is not defined");
   }
 
-  const response = await fetch(`${sellerAppUrl}/api/orders/${orderId}`, {
-    method: "PATCH",
+  const response = await fetch(`${sellerAppUrl}/api/orders`, {
+    method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "X-Service-Token": serviceToken,
+      "X-API-Key": serviceToken,
     },
-    body: JSON.stringify({ transactionId, amount }),
+    body: JSON.stringify({
+      externalId: orderId,
+      vendorId: sellerId,
+      buyerId,
+      buyerName,
+      address: buyerAddress,
+      items,
+      total,
+    }),
   });
 
   if (!response.ok) {
+    const body = await response.text();
     throw new Error(
-      `Failed to notify seller app: ${response.status} ${response.statusText}`,
+      `Failed to notify seller app: ${response.status} ${response.statusText} — ${body}`,
     );
   }
 }
 
-async function notifyBuyerApp(
-  orderId: string,
-  transactionId: string,
-  amount: number,
-  buyerId: string,
-) {
+async function notifyBuyerApp(orderId: string) {
   const buyerAppUrl = process.env.BUYER_APP_URL;
   const serviceToken = process.env.BUYER_APP_SERVICE_TOKEN;
 
@@ -50,27 +61,33 @@ async function notifyBuyerApp(
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
-      "X-Service-Token": serviceToken,
+      "x-api-key": serviceToken,
     },
-    body: JSON.stringify({ transactionId, amount, buyerId }),
+    body: JSON.stringify({ orderStatus: "PAID" }),
   });
+
+  const body = await response.text();
+  console.log(`📨 BuyerApp respondió ${response.status}:`, body);
 
   if (!response.ok) {
     throw new Error(
-      `Failed to notify buyer app: ${response.status} ${response.statusText}`,
+      `Failed to notify buyer app: ${response.status} ${response.statusText} — ${body}`,
     );
   }
 }
 
 export async function notifyPaymentApproved({
   orderId,
-  transactionId,
   amount,
   buyerId,
+  buyerName,
+  sellerId,
+  buyerAddress,
+  items,
 }: NotifyPaymentApprovedInput) {
   const results = await Promise.allSettled([
-    notifySellerApp(orderId, transactionId, amount),
-    notifyBuyerApp(orderId, transactionId, amount, buyerId),
+    notifySellerApp(orderId, sellerId, buyerId, buyerName, buyerAddress, items, amount),
+    notifyBuyerApp(orderId),
   ]);
 
   if (results[0].status === "fulfilled") {

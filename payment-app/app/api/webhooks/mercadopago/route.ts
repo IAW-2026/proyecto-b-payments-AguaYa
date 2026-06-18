@@ -95,6 +95,7 @@ export async function POST(request: Request) {
 
     const payment = await prisma.payment.findUnique({
       where: { id: externalReference },
+      include: { items: true },
     });
 
     if (!payment) {
@@ -109,12 +110,24 @@ export async function POST(request: Request) {
     console.log("📊 updatePaymentStatus:", { alreadyProcessed, newStatus, prevStatus: payment.status, prevMpStatus: payment.mpStatus });
 
     if (!alreadyProcessed && newStatus === "approved") {
-      await createInvoice(payment, mpPayment.date_approved ?? undefined);
+      try {
+        await createInvoice(payment, mpPayment.date_approved ?? undefined);
+      } catch (err: any) {
+        if (err?.code !== "P2002") throw err;
+        // Factura ya creada por un request concurrente — continuar sin notificar
+        return NextResponse.json({ success: true, alreadyProcessed: true });
+      }
       await notifyPaymentApproved({
         orderId: payment.orderId,
-        transactionId: payment.id,
         amount: payment.amount,
         buyerId: payment.buyerId,
+        buyerName: payment.buyerName,
+        sellerId: payment.sellerId,
+        buyerAddress: payment.buyerAddress ?? "",
+        items: payment.items.map((item) => ({
+          productId: item.productId ?? "",
+          quantity: item.quantity,
+        })),
       });
     }
 
