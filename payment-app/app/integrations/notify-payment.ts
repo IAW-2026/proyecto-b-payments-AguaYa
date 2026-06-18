@@ -18,10 +18,12 @@ async function notifySellerApp(
   total: number,
 ) {
   const sellerAppUrl = process.env.SELLER_APP_URL;
-  const serviceToken = process.env.SELLER_APP_SERVICE_TOKEN;
+  const serviceToken = process.env.INTERNAL_API_KEY; //le paso mi key, no la del servicio del seller app porque es un token de servicio interno para autenticación entre servicios
 
   if (!sellerAppUrl || !serviceToken) {
-    throw new Error("SELLER_APP_URL or SELLER_APP_SERVICE_TOKEN is not defined");
+    throw new Error(
+      "SELLER_APP_URL or SELLER_APP_SERVICE_TOKEN is not defined",
+    );
   }
 
   const response = await fetch(`${sellerAppUrl}/api/orders`, {
@@ -43,6 +45,7 @@ async function notifySellerApp(
 
   if (!response.ok) {
     const body = await response.text();
+    console.log(`📨 BuyerApp respondió ${response.status}:`, body);
     throw new Error(
       `Failed to notify seller app: ${response.status} ${response.statusText} — ${body}`,
     );
@@ -86,7 +89,15 @@ export async function notifyPaymentApproved({
   items,
 }: NotifyPaymentApprovedInput) {
   const results = await Promise.allSettled([
-    notifySellerApp(orderId, sellerId, buyerId, buyerName, buyerAddress, items, amount),
+    notifySellerApp(
+      orderId,
+      sellerId,
+      buyerId,
+      buyerName,
+      buyerAddress,
+      items,
+      amount,
+    ),
     notifyBuyerApp(orderId),
   ]);
 
