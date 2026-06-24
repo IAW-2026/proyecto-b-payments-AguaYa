@@ -13,35 +13,46 @@ export async function GET(
 
   const { id } = await params;
 
-  const payment = await prisma.payment.findUnique({
-    where: { id },
-    select: {
-      id: true,
-      orderId: true,
-      buyerName: true,
-      buyerEmail: true,
-      buyerAddress: true,
-      sellerName: true,
-      amount: true,
-      status: true,
-      createdAt: true,
-      updatedAt: true,
-      items: {
-        select: {
-          id: true,
-          productId: true,
-          productName: true,
-          productImageUrl: true,
-          quantity: true,
-          unitPrice: true,
-          subtotal: true,
+  let payment;
+  try {
+    payment = await prisma.payment.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        orderId: true,
+        buyerName: true,
+        buyerEmail: true,
+        buyerAddress: true,
+        sellerName: true,
+        amount: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
+        items: {
+          select: {
+            id: true,
+            productId: true,
+            productName: true,
+            productImageUrl: true,
+            quantity: true,
+            unitPrice: true,
+            subtotal: true,
+          },
         },
       },
-    },
-  });
+    });
+  } catch {
+    return NextResponse.json(
+      { error: `ID de pago inválido: "${id}"` },
+      { status: 400 },
+    );
+  }
 
   if (!payment) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
+    return NextResponse.json(
+      { error: `No se encontró un pago con ID "${id}"` },
+      { status: 404 },
+    );
   }
 
   return NextResponse.json(payment);

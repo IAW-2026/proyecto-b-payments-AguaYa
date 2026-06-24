@@ -1,0 +1,25 @@
+@CONTROL_PLANE_API_KEY = clave-de-control-pane
+
+### Listar pagos (sin filtros)
+GET http://localhost:3000/api/admin/payments
+Authorization: Bearer {{CONTROL_PLANE_API_KEY}}
+
+### Listar pagos con paginación
+GET http://localhost:3000/api/admin/payments?page=1&limit=5
+Authorization: Bearer {{CONTROL_PLANE_API_KEY}}
+
+### Filtrar por estado (valores válidos: pending, approved, rejected, cancelled, expired)
+GET http://localhost:3000/api/admin/payments?status=pending
+Authorization: Bearer {{CONTROL_PLANE_API_KEY}}
+
+### Buscar por nombre o orderId
+GET http://localhost:3000/api/admin/payments?q=Enrique
+Authorization: Bearer {{CONTROL_PLANE_API_KEY}}
+
+### Combinado: búsqueda + estado + paginación
+GET http://localhost:3000/api/admin/payments?q=Agua&status=approved&page=1&limit=10
+Authorization: Bearer {{CONTROL_PLANE_API_KEY}}
+
+### Obtener un pago por ID
+GET http://localhost:3000/api/admin/payments/REEMPLAZAR_CON_ID_REAL
+Authorization: Bearer {{CONTROL_PLANE_API_KEY}}
