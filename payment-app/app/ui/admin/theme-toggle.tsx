@@ -8,7 +8,7 @@ export default function ThemeToggle() {
   return (
     <button
       onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-      className="flex h-[48px] w-full items-center gap-2 rounded-md p-3 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-800 transition-colors dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-200"
+      className="flex h-[48px] w-full items-center gap-2 rounded-md p-3 text-sm font-medium text-[#1B4965] dark:text-[#7FB3CC] hover:bg-[#1B4965]/10 dark:hover:bg-[#1B4965]/20 hover:text-[#0B1E2D] dark:hover:text-[#E8EEF1] transition-colors"
     >
       <SunIcon className="h-5 w-5 dark:hidden" />
       <MoonIcon className="h-5 w-5 hidden dark:block" />

@@ -19,7 +19,7 @@ export async function selectRole(role: "buyer" | "seller") {
     path: "/",
     httpOnly: true,
     sameSite: "lax",
-    maxAge: 120, // bridge hasta que el JWT de Clerk se refresque (~60s)
+    maxAge: 60 * 60 * 24 * 30,
   });
 
   redirect("/dashboard");

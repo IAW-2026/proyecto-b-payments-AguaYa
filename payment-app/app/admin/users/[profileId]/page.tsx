@@ -30,7 +30,7 @@ export default async function AdminUserDetailPage({
   const { profileId } = await params;
   const { action } = await searchParams;
 
-  const user = await prisma.externalProfile.findUnique({
+  const user = await prisma.paymentUser.findUnique({
     where: { id: profileId },
   });
   if (!user) notFound();
@@ -54,7 +54,8 @@ export default async function AdminUserDetailPage({
 
       <div className="rounded-xl border border-gray-200 bg-white shadow-sm divide-y divide-gray-100 dark:border-gray-700 dark:bg-gray-900 dark:divide-gray-700 mb-6">
         <Row label="# Perfil" value={String(user.profileNumber)} />
-        <Row label="Username" value={user.userName ?? "—"} />
+        <Row label="Buyer name" value={user.buyerName ?? "—"} />
+        <Row label="Seller name" value={user.sellerName ?? "—"} />
         <Row label="Clerk ID" value={user.clerkId} mono />
         <Row label="Buyer ID" value={user.buyerId ?? "—"} mono />
         <Row label="Seller ID" value={user.sellerId ?? "—"} mono />

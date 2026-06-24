@@ -18,7 +18,7 @@ export default async function InvoiceDetailPage({
 
   const { invoiceId } = await params;
 
-  const profile = await prisma.externalProfile.findUnique({
+  const profile = await prisma.paymentUser.findUnique({
     where: { clerkId: userId },
   });
 

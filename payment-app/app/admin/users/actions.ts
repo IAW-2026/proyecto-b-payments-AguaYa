@@ -18,7 +18,7 @@ async function findProfile(profileId: string) {
   if (!profileId || typeof profileId !== "string" || profileId.trim() === "") {
     throw new Error("ID de perfil inválido.");
   }
-  const profile = await prisma.externalProfile.findUnique({
+  const profile = await prisma.paymentUser.findUnique({
     where: { id: profileId },
   });
   if (!profile) throw new Error("Usuario no encontrado.");
@@ -36,7 +36,7 @@ export async function suspendUser(formData: FormData) {
   const clerk = await clerkClient();
   try { await clerk.users.banUser(profile.clerkId); } catch {}
 
-  await prisma.externalProfile.update({
+  await prisma.paymentUser.update({
     where: { id: profileId },
     data: { status: "SUSPENDED" },
   });
@@ -55,7 +55,7 @@ export async function restoreUser(formData: FormData) {
   const clerk = await clerkClient();
   try { await clerk.users.unbanUser(profile.clerkId); } catch {}
 
-  await prisma.externalProfile.update({
+  await prisma.paymentUser.update({
     where: { id: profileId },
     data: { status: "ACTIVE" },
   });
@@ -75,7 +75,7 @@ export async function deleteUser(formData: FormData) {
   const clerk = await clerkClient();
   try { await clerk.users.deleteUser(profile.clerkId); } catch {}
 
-  await prisma.externalProfile.update({
+  await prisma.paymentUser.update({
     where: { id: profileId },
     data: { status: "DELETED" },
   });

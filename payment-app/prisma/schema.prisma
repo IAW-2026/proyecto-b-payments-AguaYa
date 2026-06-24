@@ -71,15 +71,16 @@ model Invoice {
   payment   Payment  @relation(fields: [paymentId], references: [id])
 }
 
-model ExternalProfile {
-  id        String   @id @default(cuid()) //interno para relaciones
-  profileNumber Int  @unique @default(autoincrement()) // visible al usuario
-  userName      String?
-  clerkId   String   @unique
-  buyerId   String? //perfil de Buyer
-  sellerId  String? //perfil de Seller
-  status    ProfileStatus @default(ACTIVE)
-  createdAt DateTime @default(now())
+model PaymentUser {
+  id            String        @id @default(cuid())
+  profileNumber Int           @unique @default(autoincrement())
+  clerkId       String        @unique
+  buyerId       String?
+  buyerName     String?
+  sellerId      String?
+  sellerName    String?
+  status        ProfileStatus @default(ACTIVE)
+  createdAt     DateTime      @default(now())
 }
 
 enum PaymentStatus {

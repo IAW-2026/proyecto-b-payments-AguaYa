@@ -14,7 +14,7 @@ export async function GET(
   const roles = clerkUser?.publicMetadata?.roles as string[] | undefined;
   const isAdmin = roles?.includes("admin_payment") ?? false;
 
-  const profile = await prisma.externalProfile.findUnique({
+  const profile = await prisma.paymentUser.findUnique({
     where: { clerkId: userId },
   });
 

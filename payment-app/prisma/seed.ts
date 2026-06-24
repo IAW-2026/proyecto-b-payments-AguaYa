@@ -74,41 +74,38 @@ async function main() {
   // ── Cleanup ────────────────────────────────────────────
   await prisma.invoice.deleteMany();
   await prisma.payment.deleteMany();
-  await prisma.externalProfile.deleteMany();
+  await prisma.paymentUser.deleteMany();
 
-  // ── ExternalProfile ────────────────────────────────────
-  await prisma.externalProfile.createMany({
+  // ── PaymentUser ────────────────────────────────────────
+  await prisma.paymentUser.createMany({
     data: [
       {
         clerkId: CLERK_USER,
-        userName: "Juan Pérez",
         buyerId: MOCK_BUYER_ID,
+        buyerName: "Juan Pérez",
         sellerId: MOCK_SELLER_ID,
+        sellerName: "Juan Pérez",
       },
       {
         clerkId: "mock-clerk-buyer-only",
-        userName: "María García",
         buyerId: "ext-buyer-only-1",
-        sellerId: null,
+        buyerName: "María García",
       },
       {
         clerkId: "mock-clerk-seller-only",
-        userName: "Distribuidora Sur",
-        buyerId: null,
         sellerId: "ext-seller-only-1",
+        sellerName: "Distribuidora Sur",
       },
       {
         clerkId: "mock-clerk-suspended",
-        userName: "Usuario Suspendido",
         buyerId: "ext-buyer-susp",
-        sellerId: null,
+        buyerName: "Usuario Suspendido",
         status: "SUSPENDED",
       },
       {
         clerkId: "mock-clerk-deleted",
-        userName: "Usuario Eliminado",
         buyerId: "ext-buyer-del",
-        sellerId: null,
+        buyerName: "Usuario Eliminado",
         status: "DELETED",
       },
     ],
@@ -282,7 +279,7 @@ async function main() {
   });
 
   console.log("✓ Seed completado:");
-  console.log("  - 5 ExternalProfiles");
+  console.log("  - 5 PaymentUsers");
   console.log("  - 12 payments aprobados en 12 meses + 4 en otros estados");
   console.log("  - 12 invoices generadas");
 }
