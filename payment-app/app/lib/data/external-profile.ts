@@ -7,10 +7,12 @@ type ExternalProfile = { id: string; name: string };
 async function fetchExternalBuyerProfile(
   clerkId: string,
 ): Promise<ExternalProfile | null> {
-  if (!process.env.BUYER_APP_URL) return null;
+  const { BUYER_APP_URL, BUYER_APP_SERVICE_TOKEN } = process.env;
+  if (!BUYER_APP_URL || !BUYER_APP_SERVICE_TOKEN) return null;
   try {
-    const res = await fetch(`${process.env.BUYER_APP_URL}/buyer/${clerkId}`, {
+    const res = await fetch(`${BUYER_APP_URL}/buyer/${clerkId}`, {
       cache: "no-store",
+      headers: { "x-api-key": BUYER_APP_SERVICE_TOKEN },
       signal: AbortSignal.timeout(EXTERNAL_FETCH_TIMEOUT_MS),
     });
     if (!res.ok) return null;
@@ -24,10 +26,12 @@ async function fetchExternalBuyerProfile(
 async function fetchExternalSellerProfile(
   clerkId: string,
 ): Promise<ExternalProfile | null> {
-  if (!process.env.SELLER_APP_URL) return null;
+  const { SELLER_APP_URL, SELLER_APP_SERVICE_TOKEN } = process.env;
+  if (!SELLER_APP_URL || !SELLER_APP_SERVICE_TOKEN) return null;
   try {
-    const res = await fetch(`${process.env.SELLER_APP_URL}/seller/${clerkId}`, {
+    const res = await fetch(`${SELLER_APP_URL}/seller/${clerkId}`, {
       cache: "no-store",
+      headers: { "x-api-key": SELLER_APP_SERVICE_TOKEN },
       signal: AbortSignal.timeout(EXTERNAL_FETCH_TIMEOUT_MS),
     });
     if (!res.ok) return null;
