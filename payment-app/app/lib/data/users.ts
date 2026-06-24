@@ -8,7 +8,8 @@ function usersSearchWhere(query?: string) {
   return {
     OR: [
       ...(!isNaN(profileNumber) ? [{ profileNumber }] : []),
-      { userName: { contains: query, mode: "insensitive" as const } },
+      { buyerName: { contains: query, mode: "insensitive" as const } },
+      { sellerName: { contains: query, mode: "insensitive" as const } },
       { clerkId: { contains: query, mode: "insensitive" as const } },
       { buyerId: { contains: query, mode: "insensitive" as const } },
       { sellerId: { contains: query, mode: "insensitive" as const } },
@@ -17,7 +18,7 @@ function usersSearchWhere(query?: string) {
 }
 
 export async function fetchAllUsers(query?: string, page = 1) {
-  return prisma.externalProfile.findMany({
+  return prisma.paymentUser.findMany({
     where: usersSearchWhere(query),
     orderBy: { profileNumber: "asc" },
     skip: (page - 1) * PAGE_SIZE,
@@ -26,11 +27,11 @@ export async function fetchAllUsers(query?: string, page = 1) {
 }
 
 export async function countAllUsers(query?: string) {
-  return prisma.externalProfile.count({ where: usersSearchWhere(query) });
+  return prisma.paymentUser.count({ where: usersSearchWhere(query) });
 }
 
 export async function fetchUserStats() {
-  const byStatus = await prisma.externalProfile.groupBy({
+  const byStatus = await prisma.paymentUser.groupBy({
     by: ["status"],
     _count: { _all: true },
   });

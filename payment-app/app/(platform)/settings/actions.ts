@@ -4,6 +4,7 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/app/lib/prisma";
+import { getRole } from "@/app/lib/get-role";
 
 export async function updateUserName(formData: FormData) {
   const { userId } = await auth();
@@ -12,9 +13,11 @@ export async function updateUserName(formData: FormData) {
   const userName = (formData.get("userName") as string)?.trim();
   if (!userName) return;
 
-  await prisma.externalProfile.update({
+  const role = await getRole();
+
+  await prisma.paymentUser.update({
     where: { clerkId: userId },
-    data: { userName },
+    data: role === "buyer" ? { buyerName: userName } : { sellerName: userName },
   });
 
   revalidatePath("/settings");

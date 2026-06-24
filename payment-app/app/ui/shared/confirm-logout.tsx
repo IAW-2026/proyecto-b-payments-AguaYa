@@ -3,10 +3,16 @@
 import { useState } from "react";
 import { ArrowRightOnRectangleIcon } from "@heroicons/react/24/outline";
 import { useClerk } from "@clerk/nextjs";
+import { clearSessionCookies } from "@/app/lib/auth-actions";
 
 export default function ConfirmLogout({ triggerClassName }: { triggerClassName: string }) {
   const [open, setOpen] = useState(false);
   const { signOut } = useClerk();
+
+  async function handleSignOut() {
+    await clearSessionCookies();
+    signOut({ redirectUrl: "/" });
+  }
 
   return (
     <>
@@ -27,7 +33,7 @@ export default function ConfirmLogout({ triggerClassName }: { triggerClassName: 
             <div className="flex gap-3">
               <button
                 type="button"
-                onClick={() => signOut({ redirectUrl: "/" })}
+                onClick={handleSignOut}
                 className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 transition-colors"
               >
                 Cerrar sesión

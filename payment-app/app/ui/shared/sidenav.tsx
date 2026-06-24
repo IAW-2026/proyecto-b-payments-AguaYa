@@ -12,44 +12,47 @@ import {
 
 const links = [
   { name: "Dashboard", href: "/dashboard", icon: HomeIcon },
-  { name: "Payments",  href: "/payments",  icon: CreditCardIcon },
-  { name: "Invoices",  href: "/invoices",  icon: DocumentTextIcon },
-  { name: "Settings",  href: "/settings",  icon: Cog6ToothIcon },
+  { name: "Pagos",     href: "/payments",  icon: CreditCardIcon },
+  { name: "Facturas",  href: "/invoices",  icon: DocumentTextIcon },
+  { name: "Ajustes",   href: "/settings",  icon: Cog6ToothIcon },
 ];
 
 export default function SideNav() {
   const pathname = usePathname();
 
   return (
-    <div className="flex h-full flex-col px-3 py-4 md:px-2">
+    <div className="flex h-full flex-col border-r border-[#7FB3CC] dark:border-[#1B4965] bg-[#D6EEF8] dark:bg-[#091929]">
       <Link
         href="/dashboard"
-        className="mb-2 flex h-20 items-end justify-start rounded-md bg-blue-600 p-4 md:h-40"
+        className="water-gradient-animate flex h-20 flex-col items-start justify-end p-5 md:h-40"
       >
-        <p className="text-white text-xl font-semibold">AguaYa</p>
+        <p className="text-[#E8EEF1] text-xl font-bold tracking-tight">AguaYa</p>
+        <p className="text-[#3DD6F0] text-xs font-semibold tracking-[0.2em] uppercase">Pagos</p>
       </Link>
-      <div className="flex grow flex-row justify-between space-x-2 md:flex-col md:space-x-0 md:space-y-2">
+
+      <div className="h-px bg-[#7FB3CC] dark:bg-[#1B4965]" />
+
+      <nav className="flex flex-grow flex-row md:flex-col">
         {links.map((link) => {
           const LinkIcon = link.icon;
+          const isActive = pathname === link.href;
           return (
             <Link
               key={link.name}
               href={link.href}
               className={clsx(
-                "flex h-[48px] grow items-center justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-sky-100 hover:text-blue-600 md:flex-none md:justify-start md:p-2 md:px-3 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 dark:hover:text-blue-400",
-                {
-                  "bg-sky-100 text-blue-600 dark:bg-gray-700 dark:text-blue-400":
-                    pathname === link.href,
-                },
+                "flex h-[48px] grow items-center justify-center gap-3 px-5 text-sm font-medium transition-colors md:grow-0 md:justify-start border-l-2",
+                isActive
+                  ? "border-[#3DD6F0] bg-[#1B4965]/20 dark:bg-[#1B4965]/40 text-[#1B4965] dark:text-[#3DD6F0]"
+                  : "border-transparent text-[#1B4965] dark:text-[#7FB3CC] hover:bg-[#1B4965]/10 dark:hover:bg-[#1B4965]/20 hover:text-[#0B1E2D] dark:hover:text-[#E8EEF1]",
               )}
             >
-              <LinkIcon className="w-6" />
+              <LinkIcon className="w-5 shrink-0" />
               <p className="hidden md:block">{link.name}</p>
             </Link>
           );
         })}
-        <div className="hidden h-auto w-full grow rounded-md bg-gray-50 dark:bg-gray-800 md:block" />
-      </div>
+      </nav>
     </div>
   );
 }

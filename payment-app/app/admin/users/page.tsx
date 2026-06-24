@@ -63,7 +63,7 @@ export default async function AdminUsersPage({
                     #
                   </th>
                   <th scope="col" className="px-4 py-3">
-                    Username
+                    Nombre
                   </th>
                   <th scope="col" className="px-4 py-3">
                     Clerk ID
@@ -95,7 +95,7 @@ export default async function AdminUsersPage({
                       {user.profileNumber}
                     </td>
                     <td className="px-4 py-3 text-gray-700 dark:text-gray-300">
-                      {user.userName ?? (
+                      {user.buyerName ?? user.sellerName ?? (
                         <span className="text-gray-400 italic">Sin nombre</span>
                       )}
                     </td>
@@ -136,7 +136,7 @@ export default async function AdminUsersPage({
                     <td className="px-4 py-3">
                       <Link
                         href={`/admin/users/${user.id}`}
-                        aria-label={`Ver perfil de ${user.userName ?? user.clerkId}`}
+                        aria-label={`Ver perfil de ${user.buyerName ?? user.sellerName ?? user.clerkId}`}
                         className="rounded-md px-3 py-1.5 text-xs font-medium text-blue-600 border border-blue-200 hover:bg-blue-50 transition-colors dark:border-blue-800 dark:hover:bg-blue-950 dark:text-blue-400"
                       >
                         Ver

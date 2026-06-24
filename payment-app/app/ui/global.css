@@ -2,6 +2,17 @@
 
 @variant dark (&:where(.dark, .dark *));
 
+@keyframes water-diffuse {
+  0%, 100% { background-position: 0% 50%; }
+  50%       { background-position: 100% 50%; }
+}
+
+.water-gradient-animate {
+  background: linear-gradient(135deg, #0B1E2D 0%, #1B4965 35%, #3DD6F0 55%, #1B4965 75%, #0B1E2D 100%);
+  background-size: 300% 300%;
+  animation: water-diffuse 12s ease infinite;
+}
+
 input[type="number"] {
   -moz-appearance: textfield;
   appearance: textfield;

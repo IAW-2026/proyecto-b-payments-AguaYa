@@ -1,73 +1,83 @@
 import { prisma } from "../prisma";
 
-// const EXTERNAL_FETCH_TIMEOUT_MS = 3_000;
-//
-// async function fetchExternalId(
-//   baseUrl: string | undefined,
-//   clerkId: string,
-//   field: "buyerId" | "sellerId",
-// ): Promise<string | null> {
-//   if (!baseUrl) return null;
-//   try {
-//     const res = await fetch(`${baseUrl}/users/by-clerk-id/${clerkId}`, {
-//       cache: "no-store",
-//       signal: AbortSignal.timeout(EXTERNAL_FETCH_TIMEOUT_MS),
-//     });
-//     if (!res.ok) return null;
-//     const data = await res.json();
-//     return (data[field] as string) ?? null;
-//   } catch {
-//     return null;
-//   }
-// }
+const EXTERNAL_FETCH_TIMEOUT_MS = 3_000;
 
-export async function resolveExternalProfile(clerkId: string, userName: string) {
-  const seedClerkUser = process.env.SEED_CLERK_USER;
-  const mockBuyerId   = process.env.MOCK_BUYER_ID;
-  const mockSellerId  = process.env.MOCK_SELLER_ID;
+type ExternalProfile = { id: string; name: string };
 
-  if ((mockBuyerId || mockSellerId) && clerkId === seedClerkUser) {
-    return prisma.externalProfile.upsert({
-      where: { clerkId },
-      create: { clerkId, userName, buyerId: mockBuyerId ?? null, sellerId: mockSellerId ?? null },
-      update: { buyerId: mockBuyerId ?? null, sellerId: mockSellerId ?? null },
+async function fetchExternalBuyerProfile(
+  clerkId: string,
+): Promise<ExternalProfile | null> {
+  if (!process.env.BUYER_APP_URL) return null;
+  try {
+    const res = await fetch(`${process.env.BUYER_APP_URL}/buyer/${clerkId}`, {
+      cache: "no-store",
+      signal: AbortSignal.timeout(EXTERNAL_FETCH_TIMEOUT_MS),
     });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return { id: data.id, name: data.name };
+  } catch {
+    return null;
   }
+}
 
-  // TODO: cuando las apps externas estén disponibles, descomentar fetchExternalId
-  // y reemplazar este upsert por el bloque comentado más abajo.
-  return prisma.externalProfile.upsert({
+async function fetchExternalSellerProfile(
+  clerkId: string,
+): Promise<ExternalProfile | null> {
+  if (!process.env.SELLER_APP_URL) return null;
+  try {
+    const res = await fetch(`${process.env.SELLER_APP_URL}/seller/${clerkId}`, {
+      cache: "no-store",
+      signal: AbortSignal.timeout(EXTERNAL_FETCH_TIMEOUT_MS),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return { id: data.id, name: data.name };
+  } catch {
+    return null;
+  }
+}
+
+export async function resolvePaymentUser(clerkId: string) {
+  // TODO: reemplazar por el bloque de fetches reales cuando las apps externas estén disponibles
+  return prisma.paymentUser.upsert({
     where: { clerkId },
     create: {
       clerkId,
-      userName,
-      buyerId:  `mock-buyer-${clerkId}`,
-      sellerId: `mock-seller-${clerkId}`,
+      buyerId: `buyer-${clerkId}`,
+      buyerName: `buyer-name-${clerkId}`,
+      sellerId: `seller-${clerkId}`,
+      sellerName: `seller-name-${clerkId}`,
     },
     update: {},
   });
-
-  // const existing = await prisma.externalProfile.findUnique({ where: { clerkId } });
+  // const existing = await prisma.paymentUser.findUnique({ where: { clerkId } });
   // if (existing?.buyerId && existing?.sellerId) return existing;
   //
   // const [buyerResult, sellerResult] = await Promise.allSettled([
   //   existing?.buyerId
-  //     ? Promise.resolve(existing.buyerId)
-  //     : fetchExternalId(process.env.BUYER_APP_URL, clerkId, "buyerId"),
+  //     ? Promise.resolve({ id: existing.buyerId, name: existing.buyerName })
+  //     : fetchExternalBuyerProfile(clerkId),
   //   existing?.sellerId
-  //     ? Promise.resolve(existing.sellerId)
-  //     : fetchExternalId(process.env.SELLER_APP_URL, clerkId, "sellerId"),
+  //     ? Promise.resolve({ id: existing.sellerId, name: existing.sellerName })
+  //     : fetchExternalSellerProfile(clerkId),
   // ]);
   //
-  // const buyerId  = buyerResult.status  === "fulfilled" ? buyerResult.value  : null;
-  // const sellerId = sellerResult.status === "fulfilled" ? sellerResult.value : null;
+  // const buyer  = buyerResult.status  === "fulfilled" ? buyerResult.value  : null;
+  // const seller = sellerResult.status === "fulfilled" ? sellerResult.value : null;
   //
-  // return prisma.externalProfile.upsert({
+  // return prisma.paymentUser.upsert({
   //   where: { clerkId },
-  //   create: { clerkId, userName, buyerId, sellerId },
+  //   create: {
+  //     clerkId,
+  //     buyerId:    buyer?.id   ?? `buyer-${clerkId}`,
+  //     buyerName:  buyer?.name ?? null,
+  //     sellerId:   seller?.id  ?? `seller-${clerkId}`,
+  //     sellerName: seller?.name ?? null,
+  //   },
   //   update: {
-  //     ...(!existing?.buyerId  && buyerId  ? { buyerId  } : {}),
-  //     ...(!existing?.sellerId && sellerId ? { sellerId } : {}),
+  //     ...(!existing?.buyerId  && buyer  ? { buyerId:   buyer.id,   buyerName:  buyer.name  } : {}),
+  //     ...(!existing?.sellerId && seller ? { sellerId:  seller.id,  sellerName: seller.name } : {}),
   //   },
   // });
 }

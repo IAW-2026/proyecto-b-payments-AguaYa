@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   ArrowsRightLeftIcon,
   ClipboardDocumentIcon,
@@ -7,18 +8,26 @@ import {
   SunIcon,
 } from "@heroicons/react/24/outline";
 import ConfirmLogout from "@/app/ui/shared/confirm-logout";
-import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { updateUserName } from "@/app/(platform)/settings/actions";
+
+const ROLE_LABEL: Record<"buyer" | "seller", string> = {
+  buyer: "Comprador",
+  seller: "Vendedor",
+};
 
 export default function SettingsPanel({
   userName,
   profileNumber,
+  otherRole,
+  switchRoleAction,
 }: {
   userName: string | null;
   profileNumber: number;
+  otherRole: "buyer" | "seller" | null;
+  switchRoleAction: ((formData: FormData) => Promise<void>) | null;
 }) {
-  const router = useRouter();
+  const [confirming, setConfirming] = useState(false);
 
   const { theme, setTheme } = useTheme();
 
@@ -80,14 +89,41 @@ export default function SettingsPanel({
           Cuenta
         </h2>
 
-        <button
-          type="button"
-          onClick={() => router.push("/select-role")}
-          className="flex w-full items-center gap-3 rounded-md border border-gray-200 bg-white p-4 text-left text-sm font-medium text-gray-700 hover:border-blue-500 hover:text-blue-600 transition-colors dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:border-blue-400 dark:hover:text-blue-400"
-        >
-          <ArrowsRightLeftIcon className="w-6" />
-          <span className="grow">Cambiar de rol</span>
-        </button>
+        {otherRole && switchRoleAction && (
+          confirming ? (
+            <div className="rounded-md border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+              <p className="text-sm text-gray-700 dark:text-gray-200 mb-3">
+                ¿Cambiar a <span className="font-semibold">{ROLE_LABEL[otherRole]}</span>?
+              </p>
+              <div className="flex gap-2">
+                <form action={switchRoleAction} className="flex-1">
+                  <button
+                    type="submit"
+                    className="w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors"
+                  >
+                    Sí, cambiar
+                  </button>
+                </form>
+                <button
+                  type="button"
+                  onClick={() => setConfirming(false)}
+                  className="flex-1 rounded-md border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setConfirming(true)}
+              className="flex w-full items-center gap-3 rounded-md border border-gray-200 bg-white p-4 text-left text-sm font-medium text-gray-700 hover:border-blue-500 hover:text-blue-600 transition-colors dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:border-blue-400 dark:hover:text-blue-400"
+            >
+              <ArrowsRightLeftIcon className="w-6" />
+              <span className="grow">Cambiar a {ROLE_LABEL[otherRole]}</span>
+            </button>
+          )
+        )}
 
         <button
           type="button"

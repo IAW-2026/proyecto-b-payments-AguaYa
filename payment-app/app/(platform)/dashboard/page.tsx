@@ -15,7 +15,7 @@ export default async function DashboardPage() {
   const role = await getRole();
   if (!role) redirect("/select-role");
 
-  const profile = await prisma.externalProfile.findUnique({
+  const profile = await prisma.paymentUser.findUnique({
     where: { clerkId: userId },
   });
 

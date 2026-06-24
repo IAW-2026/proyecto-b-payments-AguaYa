@@ -29,11 +29,10 @@ export default function NavLinksAdmin() {
             href={link.href}
             aria-label={link.name}
             className={clsx(
-              "flex h-[48px] grow items-center justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-sky-100 hover:text-blue-600 md:flex-none md:justify-start md:p-2 md:px-3 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 dark:hover:text-blue-400",
-              {
-                "bg-sky-100 text-blue-600 dark:bg-gray-700 dark:text-blue-400":
-                  pathname === link.href,
-              },
+              "flex h-[48px] grow items-center justify-center gap-3 px-5 text-sm font-medium transition-colors md:grow-0 md:justify-start border-l-2",
+              pathname === link.href
+                ? "border-[#3DD6F0] bg-[#1B4965]/20 dark:bg-[#1B4965]/40 text-[#1B4965] dark:text-[#3DD6F0]"
+                : "border-transparent text-[#1B4965] dark:text-[#7FB3CC] hover:bg-[#1B4965]/10 dark:hover:bg-[#1B4965]/20 hover:text-[#0B1E2D] dark:hover:text-[#E8EEF1]",
             )}
           >
             <LinkIcon className="w-6" />

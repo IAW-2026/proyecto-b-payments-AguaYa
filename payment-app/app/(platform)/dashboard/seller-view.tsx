@@ -1,4 +1,3 @@
-import { lusitana } from "@/app/ui/fonts";
 import {
   fetchSellerStats,
   fetchSellerMonthlyRevenue,
@@ -32,11 +31,11 @@ export default async function SellerDashboard({ sellerId }: { sellerId: string }
 
   return (
     <main>
-      <h1 className={`${lusitana.className} mb-8 text-2xl font-bold md:text-3xl`}>
+      <h1 className="mb-8 text-2xl font-bold md:text-3xl text-[#E8EEF1]">
         Dashboard
       </h1>
 
-      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[#7FB3CC] tracking-[0.15em]">
         Resumen
       </h2>
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -78,7 +77,7 @@ export default async function SellerDashboard({ sellerId }: { sellerId: string }
         />
       </div>
 
-      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[#7FB3CC] tracking-[0.15em]">
         Productos
       </h2>
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -100,18 +99,18 @@ export default async function SellerDashboard({ sellerId }: { sellerId: string }
         />
       </div>
 
-      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[#7FB3CC] tracking-[0.15em]">
         Gráficos
       </h2>
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-900">
-          <p className="mb-4 text-sm font-medium text-gray-700 dark:text-gray-300">
+        <div className="border border-[#1B4965] bg-[#0F2840] p-5">
+          <p className="mb-4 text-sm font-medium text-[#7FB3CC]">
             Ingresos mensuales (últimos 12 meses)
           </p>
           <RevenueChart data={monthlyRevenue} />
         </div>
-        <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-900">
-          <p className="mb-4 text-sm font-medium text-gray-700 dark:text-gray-300">
+        <div className="border border-[#1B4965] bg-[#0F2840] p-5">
+          <p className="mb-4 text-sm font-medium text-[#7FB3CC]">
             Ventas por estado
           </p>
           <StatusChart data={statusChartData} />
@@ -136,19 +135,19 @@ function StatCard({
 }) {
   return (
     <div
-      className={`rounded-xl border p-4 shadow-sm ${
+      className={`border p-4 ${
         highlight
-          ? "border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950"
-          : "border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"
+          ? "border-[#3DD6F0]/30 bg-[#1B4965]/50"
+          : "border-[#1B4965] bg-[#0F2840]"
       }`}
     >
       <div className="mb-2 flex items-center justify-between">
-        <span className="text-xs font-medium text-gray-500 dark:text-gray-400">{label}</span>
+        <span className="text-xs font-medium text-[#7FB3CC]">{label}</span>
         {icon}
       </div>
-      <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{value}</p>
+      <p className="text-2xl font-bold text-[#E8EEF1]">{value}</p>
       {subtitle && (
-        <p className="mt-1 truncate text-xs text-gray-500 dark:text-gray-400">{subtitle}</p>
+        <p className="mt-1 truncate text-xs text-[#7FB3CC]">{subtitle}</p>
       )}
     </div>
   );
