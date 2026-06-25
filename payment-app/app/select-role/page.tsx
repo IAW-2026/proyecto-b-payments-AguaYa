@@ -32,8 +32,8 @@ export default async function SelectRolePage() {
 
   if (!hasBuyer && !hasSeller) redirect("/no-account");
 
-  if (hasBuyer && !hasSeller) await selectRole("buyer");
-  if (hasSeller && !hasBuyer) await selectRole("seller");
+  if (hasBuyer && !hasSeller) redirect("/api/auto-select-role?role=buyer");
+  if (hasSeller && !hasBuyer) redirect("/api/auto-select-role?role=seller");
 
   const selectBuyer = selectRole.bind(null, "buyer");
   const selectSeller = selectRole.bind(null, "seller");

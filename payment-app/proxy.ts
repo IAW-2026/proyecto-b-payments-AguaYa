@@ -17,7 +17,7 @@ export default clerkMiddleware(async (auth, req) => {
 
   if (req.nextUrl.pathname === "/select-role") {
     const { sessionClaims } = await auth();
-    const roles = sessionClaims?.public_metadata?.roles as string[] | undefined;
+    const roles = sessionClaims?.metadata?.roles as string[] | undefined;
     if (roles?.includes("admin_payment")) {
       return NextResponse.redirect(new URL("/admin/dashboard", req.url));
     }

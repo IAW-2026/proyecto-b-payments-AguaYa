@@ -1,6 +1,6 @@
 import { prisma } from "../prisma";
 
-const EXTERNAL_FETCH_TIMEOUT_MS = 3_000;
+const EXTERNAL_FETCH_TIMEOUT_MS = 5_000;
 
 type ExternalProfile = { id: string; name: string };
 type ExternalBuyerProfile = { buyer_id: string; name: string };
