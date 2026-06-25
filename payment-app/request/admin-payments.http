@@ -1,4 +1,4 @@
-@CONTROL_PLANE_API_KEY = clave-de-control-pane
+@CONTROL_PLANE_API_KEY = clave-de-control-plane
 
 ### Listar pagos (sin filtros)
 GET http://localhost:3000/api/admin/payments
@@ -21,5 +21,12 @@ GET http://localhost:3000/api/admin/payments?q=Agua&status=approved&page=1&limit
 Authorization: Bearer {{CONTROL_PLANE_API_KEY}}
 
 ### Obtener un pago por ID
-GET http://localhost:3000/api/admin/payments/REEMPLAZAR_CON_ID_REAL
+GET http://localhost:3000/api/admin/payments/cmqt38dxv0000kz04i7frpduy
 Authorization: Bearer {{CONTROL_PLANE_API_KEY}}
+
+### Cancelar pago pendiente (pending → cancelled)
+PATCH http://localhost:3000/api/admin/payments/cmqsifjpg001luwd4o14ems43/status
+Authorization: Bearer {{CONTROL_PLANE_API_KEY}}
+Content-Type: application/json
+
+{ "status": "cancelled" }

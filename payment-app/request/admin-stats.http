@@ -1,0 +1,5 @@
+@CONTROL_PLANE_API_KEY = clave-de-control-plane
+
+### Stats globales + revenue mensual (últimos 12 meses)
+GET http://localhost:3000/api/admin/stats
+Authorization: Bearer {{CONTROL_PLANE_API_KEY}}

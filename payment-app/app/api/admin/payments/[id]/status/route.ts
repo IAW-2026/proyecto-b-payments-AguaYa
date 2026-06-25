@@ -16,7 +16,7 @@ export async function PATCH(
 
   if (body.status !== "cancelled") {
     return NextResponse.json(
-      { error: "Only pending → cancelled transition is allowed from the control plane" },
+      { error: "Solo se permite la transición pending → cancelled desde el Control Plane" },
       { status: 422 },
     );
   }
@@ -32,7 +32,7 @@ export async function PATCH(
 
   if (payment.status !== "pending") {
     return NextResponse.json(
-      { error: `Cannot cancel a payment with status '${payment.status}'` },
+      { error: `No se puede cancelar un pago con status '${payment.status}'` },
       { status: 422 },
     );
   }
@@ -42,5 +42,5 @@ export async function PATCH(
     data: { status: "cancelled" },
   });
 
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, from: "pending", to: "cancelled" });
 }
