@@ -69,6 +69,7 @@ export async function POST(request: Request) {
       buyerId: body.buyer.id,
       buyerName: body.buyer.name,
       buyerEmail: body.buyer.email,
+      buyerPhone: body.buyer.phone ?? null,
       buyerAddress: body.buyer.address,
       //datos del seller
       sellerId: body.seller.id,

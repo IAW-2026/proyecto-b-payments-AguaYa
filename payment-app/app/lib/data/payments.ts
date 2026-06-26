@@ -109,6 +109,16 @@ export async function fetchPaymentStats() {
   };
 }
 
+const ITEMS_SELECT = {
+  select: {
+    id: true,
+    productName: true,
+    quantity: true,
+    unitPrice: true,
+    subtotal: true,
+  },
+} as const;
+
 export async function fetchAllPayments(filters: PaymentsFilters = {}) {
   const { page = 1, ...rest } = filters;
   return prisma.payment.findMany({
@@ -125,6 +135,7 @@ export async function fetchAllPayments(filters: PaymentsFilters = {}) {
       mpPaymentMethod: true,
       buyerName: true,
       sellerName: true,
+      items: ITEMS_SELECT,
     },
   });
 }
@@ -148,6 +159,7 @@ export async function fetchBuyerPayments(buyerId: string, filters: PaymentsFilte
       createdAt: true,
       mpPaymentMethod: true,
       sellerName: true,
+      items: ITEMS_SELECT,
     },
   });
 }
@@ -176,6 +188,7 @@ export async function fetchSellerPayments(sellerId: string, filters: PaymentsFil
       createdAt: true,
       mpPaymentMethod: true,
       buyerName: true,
+      items: ITEMS_SELECT,
     },
   });
 }

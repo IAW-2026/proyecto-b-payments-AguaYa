@@ -3,6 +3,7 @@ type NotifyPaymentApprovedInput = {
   amount: number;
   buyerId: string;
   buyerName: string;
+  buyerPhone: string | null;
   sellerId: string;
   buyerAddress: string;
   items: { productId: string; quantity: number }[];
@@ -13,6 +14,7 @@ async function notifySellerApp(
   sellerId: string,
   buyerId: string,
   buyerName: string,
+  buyerPhone: string | null,
   buyerAddress: string,
   items: { productId: string; quantity: number }[],
   total: number,
@@ -37,6 +39,7 @@ async function notifySellerApp(
       vendorId: sellerId,
       buyerId,
       buyerName,
+      buyerPhone,
       address: buyerAddress,
       items,
       total,
@@ -45,7 +48,6 @@ async function notifySellerApp(
 
   if (!response.ok) {
     const body = await response.text();
-    console.log(`📨 BuyerApp respondió ${response.status}:`, body);
     throw new Error(
       `Failed to notify seller app: ${response.status} ${response.statusText} — ${body}`,
     );
@@ -69,10 +71,8 @@ async function notifyBuyerApp(orderId: string) {
     body: JSON.stringify({ orderStatus: "PAID" }),
   });
 
-  const body = await response.text();
-  console.log(`📨 BuyerApp respondió ${response.status}:`, body);
-
   if (!response.ok) {
+    const body = await response.text();
     throw new Error(
       `Failed to notify buyer app: ${response.status} ${response.statusText} — ${body}`,
     );
@@ -84,6 +84,7 @@ export async function notifyPaymentApproved({
   amount,
   buyerId,
   buyerName,
+  buyerPhone,
   sellerId,
   buyerAddress,
   items,
@@ -94,6 +95,7 @@ export async function notifyPaymentApproved({
       sellerId,
       buyerId,
       buyerName,
+      buyerPhone,
       buyerAddress,
       items,
       amount,
@@ -101,15 +103,11 @@ export async function notifyPaymentApproved({
     notifyBuyerApp(orderId),
   ]);
 
-  if (results[0].status === "fulfilled") {
-    console.log(`📦 SellerApp notificada para la orden ${orderId}.`);
-  } else {
+  if (results[0].status === "rejected") {
     console.error(`❌ Error al notificar a SellerApp:`, results[0].reason);
   }
 
-  if (results[1].status === "fulfilled") {
-    console.log(`🛒 BuyerApp notificada para la orden ${orderId}.`);
-  } else {
+  if (results[1].status === "rejected") {
     console.error(`❌ Error al notificar a BuyerApp:`, results[1].reason);
   }
 }

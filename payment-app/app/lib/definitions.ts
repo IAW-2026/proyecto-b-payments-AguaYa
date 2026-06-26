@@ -24,6 +24,14 @@ export type RecentInvoice = {
   };
 };
 
+export type PaymentItem = {
+  id: string;
+  productName: string;
+  quantity: number;
+  unitPrice: number;
+  subtotal: number;
+};
+
 export type Payment = {
   id: string;
   orderId: string;
@@ -33,4 +41,5 @@ export type Payment = {
   mpPaymentMethod: string | null;
   buyerName?: string;
   sellerName?: string;
+  items: PaymentItem[];
 };

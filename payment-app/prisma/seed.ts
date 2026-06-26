@@ -22,6 +22,7 @@ async function createApproved(opts: {
   buyerEmail: string;
   mpPaymentMethod: string;
   createdAt: Date;
+  confirmMinutes: number;
   items: Item[];
 }) {
   const amount = opts.items.reduce(
@@ -42,7 +43,7 @@ async function createApproved(opts: {
       mpPaymentId: `mp-${opts.orderId}`,
       mpStatus: "approved",
       mpPaymentMethod: opts.mpPaymentMethod,
-      mpPaymentDate: opts.createdAt,
+      mpPaymentDate: new Date(opts.createdAt.getTime() + opts.confirmMinutes * 60_000),
       createdAt: opts.createdAt,
       items: {
         create: opts.items.map((i) => ({
@@ -121,6 +122,7 @@ async function main() {
     buyerEmail: "juan@mail.com",
     mpPaymentMethod: "visa",
     createdAt: mAgo(11),
+    confirmMinutes: 2.5,
     items: [{ productName: "Bidón 20L", quantity: 2, unitPrice: 4500 }],
   });
   await createApproved({
@@ -129,6 +131,7 @@ async function main() {
     buyerEmail: "maria@mail.com",
     mpPaymentMethod: "mastercard",
     createdAt: mAgo(10),
+    confirmMinutes: 4.1,
     items: [
       { productName: "Agua 5L", quantity: 4, unitPrice: 800 },
       { productName: "Dispensador", quantity: 1, unitPrice: 3200 },
@@ -140,6 +143,7 @@ async function main() {
     buyerEmail: "carlos@mail.com",
     mpPaymentMethod: "visa",
     createdAt: mAgo(9),
+    confirmMinutes: 1.3,
     items: [{ productName: "Agua 10L", quantity: 3, unitPrice: 5500 }],
   });
   await createApproved({
@@ -148,6 +152,7 @@ async function main() {
     buyerEmail: "juan@mail.com",
     mpPaymentMethod: "debin",
     createdAt: mAgo(8),
+    confirmMinutes: 8.7,
     items: [
       { productName: "Bidón 20L", quantity: 1, unitPrice: 4500 },
       { productName: "Agua 5L", quantity: 2, unitPrice: 800 },
@@ -159,6 +164,7 @@ async function main() {
     buyerEmail: "maria@mail.com",
     mpPaymentMethod: "mastercard",
     createdAt: mAgo(7),
+    confirmMinutes: 3.2,
     items: [{ productName: "Dispensador", quantity: 2, unitPrice: 3200 }],
   });
   await createApproved({
@@ -167,6 +173,7 @@ async function main() {
     buyerEmail: "carlos@mail.com",
     mpPaymentMethod: "visa",
     createdAt: mAgo(6),
+    confirmMinutes: 0.8,
     items: [{ productName: "Bidón 20L", quantity: 3, unitPrice: 4500 }],
   });
   await createApproved({
@@ -175,6 +182,7 @@ async function main() {
     buyerEmail: "juan@mail.com",
     mpPaymentMethod: "visa",
     createdAt: mAgo(5),
+    confirmMinutes: 2.0,
     items: [{ productName: "Agua 10L", quantity: 2, unitPrice: 5500 }],
   });
   await createApproved({
@@ -183,6 +191,7 @@ async function main() {
     buyerEmail: "maria@mail.com",
     mpPaymentMethod: "mastercard",
     createdAt: mAgo(4),
+    confirmMinutes: 5.5,
     items: [
       { productName: "Bidón 20L", quantity: 2, unitPrice: 4500 },
       { productName: "Agua 5L", quantity: 6, unitPrice: 800 },
@@ -194,6 +203,7 @@ async function main() {
     buyerEmail: "carlos@mail.com",
     mpPaymentMethod: "debin",
     createdAt: mAgo(3),
+    confirmMinutes: 1.7,
     items: [{ productName: "Agua 5L", quantity: 10, unitPrice: 800 }],
   });
   await createApproved({
@@ -202,6 +212,7 @@ async function main() {
     buyerEmail: "juan@mail.com",
     mpPaymentMethod: "visa",
     createdAt: mAgo(2),
+    confirmMinutes: 38.0,
     items: [{ productName: "Bidón 20L", quantity: 4, unitPrice: 4500 }],
   });
   await createApproved({
@@ -210,6 +221,7 @@ async function main() {
     buyerEmail: "maria@mail.com",
     mpPaymentMethod: "mastercard",
     createdAt: mAgo(1),
+    confirmMinutes: 3.9,
     items: [
       { productName: "Dispensador", quantity: 1, unitPrice: 3200 },
       { productName: "Agua 10L", quantity: 1, unitPrice: 5500 },
@@ -221,6 +233,7 @@ async function main() {
     buyerEmail: "carlos@mail.com",
     mpPaymentMethod: "visa",
     createdAt: mAgo(0),
+    confirmMinutes: 4.6,
     items: [{ productName: "Bidón 20L", quantity: 1, unitPrice: 4500 }],
   });
 

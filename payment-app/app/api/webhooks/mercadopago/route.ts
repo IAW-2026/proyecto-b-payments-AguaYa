@@ -35,12 +35,6 @@ async function getMpPaymentId(request: Request): Promise<string | null> {
       merchantOrderId: Number(id),
     });
 
-    console.log("📦 MerchantOrder:", {
-      id: order.id,
-      status: order.order_status,
-      payments: order.payments?.map((p) => ({ id: p.id, status: p.status })),
-    });
-
     // En sandbox, las tarjetas de prueba a veces envían merchant_order con payments[]
     // vacío (notificación de "checkout abierto") sin una notificación de pago posterior.
     // En producción esto no ocurre — el pago siempre genera su propia notificación.
@@ -52,11 +46,6 @@ async function getMpPaymentId(request: Request): Promise<string | null> {
   // Formato body JSON (webhooks configurados en el dashboard de MP)
   try {
     const body = await request.json();
-    console.log("🔔 Webhook MP body:", {
-      type: body.type,
-      action: body.action,
-      dataId: body.data?.id,
-    });
     if (body.type === "payment" && body.data?.id) {
       return body.data.id.toString();
     }
@@ -71,19 +60,11 @@ export async function POST(request: Request) {
   try {
     const mpPaymentId = await getMpPaymentId(request);
 
-    console.log("🔔 Webhook MP recibido, mpPaymentId:", mpPaymentId);
-
     if (!mpPaymentId) {
       return NextResponse.json({ ignored: true });
     }
 
     const mpPayment = await paymentClient.get({ id: mpPaymentId });
-
-    console.log("💳 MP Payment:", {
-      id: mpPayment.id,
-      status: mpPayment.status,
-      externalReference: mpPayment.external_reference,
-    });
 
     const externalReference = mpPayment.external_reference;
     if (!externalReference) {
@@ -107,8 +88,6 @@ export async function POST(request: Request) {
       mpPayment,
     );
 
-    console.log("📊 updatePaymentStatus:", { alreadyProcessed, newStatus, prevStatus: payment.status, prevMpStatus: payment.mpStatus });
-
     if (!alreadyProcessed && newStatus === "approved") {
       try {
         await createInvoice(payment, mpPayment.date_approved ?? undefined);
@@ -122,6 +101,7 @@ export async function POST(request: Request) {
         amount: payment.amount,
         buyerId: payment.buyerId,
         buyerName: payment.buyerName,
+        buyerPhone: payment.buyerPhone ?? null,
         sellerId: payment.sellerId,
         buyerAddress: payment.buyerAddress ?? "",
         items: payment.items.map((item) => ({
