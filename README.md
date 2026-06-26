@@ -8,15 +8,13 @@
 
 Al iniciar sesión, cualquier usuario se vincula automáticamente con IDs de prueba (buyer y seller) cargados en la base de datos.
 
-**Usuario admin de corrección:**
+seller+clerk_test@iaw.com
+iawuser#
+seller+buyer+clerk_test@iaw.com
+iawuser#
+zexuttitriyoi-5675@yopmail.com (admin)
+contraseña: falso-123
 
-- Email: `admin_payments+clerk_test@iaw.com`
-- Contraseña: `iawuser#`
-
-**Usuario no-admin con external_profile:**
-
-- Email: `buyer+seller+clerktest@iaw.com` que tiene ambos roles
-- Contraseña: `iawuser#`
 
 **Otras cuentas temporales (opciones a considerar)**
 
