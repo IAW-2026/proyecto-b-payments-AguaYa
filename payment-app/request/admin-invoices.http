@@ -1,0 +1,9 @@
+@CONTROL_PLANE_API_KEY = clave-de-control-plane
+
+### Listar facturas
+GET http://localhost:3000/api/admin/invoices
+Authorization: Bearer {{CONTROL_PLANE_API_KEY}}
+
+### Listar facturas con paginación
+GET http://localhost:3000/api/admin/invoices?page=1&limit=5
+Authorization: Bearer {{CONTROL_PLANE_API_KEY}}

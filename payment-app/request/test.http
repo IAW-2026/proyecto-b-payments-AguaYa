@@ -1,0 +1,4 @@
+POST https://wdvv0slx-3000.brs.devtunnels.ms/api/webhooks/mercadopago
+Content-Type: application/json
+
+{"type":"test"}

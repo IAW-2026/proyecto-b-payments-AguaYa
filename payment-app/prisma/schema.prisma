@@ -1,0 +1,99 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Payment {
+  id              String        @id @default(cuid())
+  orderId         String
+  
+  buyerId         String
+  buyerName       String
+  buyerEmail      String
+  buyerPhone      String?
+  buyerAddress    String?
+
+  sellerId        String
+  sellerName      String
+  
+  amount          Int
+  
+  status          PaymentStatus
+  
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  
+  mpPreferenceId  String?
+  mpPaymentId     String?
+  mpStatus        String?
+  mpPaymentMethod String?
+  mpPaymentDate   DateTime?
+  
+  invoice         Invoice?
+  
+  items           PaymentItemSnapshot[]
+}
+//se guarda un snapshot del item que compone el pedido
+model PaymentItemSnapshot {
+  id          String   @id @default(cuid())
+
+  paymentId   String
+
+  productId       String?
+  productName     String
+  productImageUrl String?
+
+  quantity    Int
+
+  unitPrice   Int
+
+  subtotal    Int
+
+  payment      Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+}
+model PaymentAdmin {
+  userId         String   @unique
+  paymentAdminId String   @id @default(cuid())
+  name           String
+  createdAt      DateTime @default(now())
+}
+
+model Invoice {
+  id        String   @id @default(cuid())
+  paymentId String   @unique
+  subtotal  Int
+  tax       Int
+  total     Int
+  issuedAt  DateTime @default(now())
+  payment   Payment  @relation(fields: [paymentId], references: [id])
+}
+
+model PaymentUser {
+  id            String        @id @default(cuid())
+  profileNumber Int           @unique @default(autoincrement())
+  clerkId       String        @unique
+  buyerId       String?
+  buyerName     String?
+  sellerId      String?
+  sellerName    String?
+  status        ProfileStatus @default(ACTIVE)
+  createdAt     DateTime      @default(now())
+}
+
+enum PaymentStatus {
+  pending
+  cancelled
+  approved
+  rejected
+  expired
+}
+
+enum ProfileStatus {
+  ACTIVE
+  DELETED
+  SUSPENDED // por ejemplo, si el admin suspende un usuario
+}

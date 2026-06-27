@@ -1,0 +1,116 @@
+import { auth } from "@clerk/nextjs/server";
+import { redirect, notFound } from "next/navigation";
+import { getRole } from "@/app/lib/get-role";
+import { prisma } from "@/app/lib/prisma";
+import { lusitana } from "@/app/ui/fonts";
+import { fetchBuyerInvoiceById, fetchSellerInvoiceById } from "@/app/lib/data";
+
+export default async function InvoiceDetailPage({
+  params,
+}: {
+  params: Promise<{ invoiceId: string }>;
+}) {
+  const { userId } = await auth();
+  if (!userId) redirect("/sign-in");
+
+  const role = await getRole();
+  if (!role) redirect("/select-role");
+
+  const { invoiceId } = await params;
+
+  const profile = await prisma.paymentUser.findUnique({
+    where: { clerkId: userId },
+  });
+
+  if (role === "buyer") {
+    if (!profile?.buyerId) redirect("/select-role");
+    const invoice = await fetchBuyerInvoiceById(invoiceId, profile.buyerId);
+    if (!invoice) notFound();
+    return <InvoiceView invoiceId={invoiceId} invoice={invoice} sellerName={invoice.payment.sellerName} />;
+  }
+
+  if (role === "seller") {
+    if (!profile?.sellerId) redirect("/select-role");
+    const invoice = await fetchSellerInvoiceById(invoiceId, profile.sellerId);
+    if (!invoice) notFound();
+    return <InvoiceView invoiceId={invoiceId} invoice={invoice} />;
+  }
+}
+
+function InvoiceView({
+  invoiceId,
+  invoice,
+  sellerName,
+}: {
+  invoiceId: string;
+  invoice: {
+    subtotal: number;
+    tax: number;
+    total: number;
+    issuedAt: Date;
+    payment: {
+      orderId: string;
+      buyerName: string;
+      buyerEmail: string;
+      mpPaymentMethod: string | null;
+    };
+  };
+  sellerName?: string;
+}) {
+  return (
+    <main className="max-w-2xl">
+      <h1 className={`${lusitana.className} mb-6 text-2xl font-bold md:text-3xl`}>
+        Invoice Detail
+      </h1>
+      <div className="rounded-xl border border-gray-200 bg-white shadow-sm divide-y divide-gray-100 dark:border-gray-700 dark:bg-gray-900 dark:divide-gray-700">
+        <Row label="Order ID" value={invoice.payment.orderId} mono />
+        {sellerName && <Row label="Vendedor" value={sellerName} />}
+        <Row label="Buyer" value={`${invoice.payment.buyerName} (${invoice.payment.buyerEmail})`} />
+        <Row label="Payment method" value={invoice.payment.mpPaymentMethod ?? "—"} />
+        <Row
+          label="Issued at"
+          value={invoice.issuedAt.toLocaleDateString("es-AR", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })}
+        />
+        <Row label="Subtotal"     value={`$ ${invoice.subtotal.toLocaleString("es-AR")}`} />
+        <Row label="IVA est. (21%)" value={`$ ${invoice.tax.toLocaleString("es-AR")}`} />
+        <Row label="Total"        value={`$ ${invoice.total.toLocaleString("es-AR")}`} bold />
+      </div>
+      <div className="mt-6">
+        <a
+          href={`/api/invoices/${invoiceId}/pdf`}
+          download
+          className="inline-block rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-700 transition-colors"
+        >
+          Download PDF
+        </a>
+      </div>
+    </main>
+  );
+}
+
+function Row({
+  label,
+  value,
+  mono = false,
+  bold = false,
+}: {
+  label: string;
+  value: string;
+  mono?: boolean;
+  bold?: boolean;
+}) {
+  return (
+    <div className="flex justify-between px-6 py-4 text-sm">
+      <span className="text-gray-500 dark:text-gray-400">{label}</span>
+      <span
+        className={`${bold ? "font-semibold text-gray-900 dark:text-gray-100" : "text-gray-700 dark:text-gray-300"} ${mono ? "font-mono text-xs" : ""}`}
+      >
+        {value}
+      </span>
+    </div>
+  );
+}
