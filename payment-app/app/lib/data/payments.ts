@@ -386,9 +386,9 @@ export async function fetchConfirmationTimeStats() {
 
   if (!r || r.avg_minutes == null) return empty;
 
-  return {
-    avgMinutes: r.avg_minutes,
-    medianMinutes: r.median_minutes,
+ return {
+    avgMinutes: r.avg_minutes != null ? Number(r.avg_minutes) : null,
+    medianMinutes: r.median_minutes != null ? Number(r.median_minutes) : null,
     buckets: [
       { range: "0-1 min",  count: Number(r.bucket_0_1) },
       { range: "1-5 min",  count: Number(r.bucket_1_5) },
